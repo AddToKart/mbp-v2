@@ -3,12 +3,17 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Check if we're on homepage to determine if navbar should be transparent
+  const isHomePage = pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,7 +34,7 @@ export default function Navbar() {
   return (
     <motion.nav
       className={`fixed top-0 left-0 right-0 z-50 theme-transition ${
-        isScrolled
+        isScrolled || !isHomePage
           ? "bg-card/95 backdrop-blur-md shadow-lg border-b border-border/50"
           : "bg-transparent"
       }`}
@@ -51,14 +56,16 @@ export default function Navbar() {
               <div className="hidden sm:block">
                 <h1
                   className={`font-bold text-lg ${
-                    isScrolled ? "text-foreground" : "text-white"
+                    isScrolled || !isHomePage ? "text-foreground" : "text-white"
                   }`}
                 >
                   Santa Maria
                 </h1>
                 <p
                   className={`text-xs ${
-                    isScrolled ? "text-muted-foreground" : "text-white/90"
+                    isScrolled || !isHomePage
+                      ? "text-muted-foreground"
+                      : "text-white/90"
                   }`}
                 >
                   Municipal Government
@@ -73,7 +80,7 @@ export default function Navbar() {
               <Link key={link.name} href={link.href}>
                 <motion.span
                   className={`hover:text-primary smooth-transition font-medium cursor-pointer ${
-                    isScrolled ? "text-foreground" : "text-white"
+                    isScrolled || !isHomePage ? "text-foreground" : "text-white"
                   }`}
                   whileHover={{ y: -2 }}
                 >
@@ -81,14 +88,16 @@ export default function Navbar() {
                 </motion.span>
               </Link>
             ))}
-            <ThemeToggle isTransparent={!isScrolled} />
+            <ThemeToggle isTransparent={!isScrolled && isHomePage} />
           </div>
 
           {/* Mobile Menu Button and Theme Toggle */}
           <div className="md:hidden flex items-center gap-3">
-            <ThemeToggle isTransparent={!isScrolled} />
+            <ThemeToggle isTransparent={!isScrolled && isHomePage} />
             <button
-              className={`p-2 ${isScrolled ? "text-foreground" : "text-white"}`}
+              className={`p-2 ${
+                isScrolled || !isHomePage ? "text-foreground" : "text-white"
+              }`}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
