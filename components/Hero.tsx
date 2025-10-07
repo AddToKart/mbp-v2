@@ -1,32 +1,24 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 
 export default function Hero() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Parallax transforms - subtle movement
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  // Ensure component is mounted
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
-    <section
-      ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-    >
-      {/* Background Image with Parallax */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background Image */}
       <motion.div
         className="absolute inset-0 z-0"
-        style={{ y: backgroundY }}
         initial={{ scale: 1.1 }}
         animate={{ scale: 1 }}
         transition={{ duration: 1.5, ease: "easeOut" }}
@@ -41,11 +33,8 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/80 to-secondary/70" />
       </motion.div>
 
-      {/* Glass Card Content with Parallax */}
-      <motion.div
-        className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
-        style={{ y: contentY, opacity }}
-      >
+      {/* Glass Card Content */}
+      <motion.div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           className="glass-effect rounded-3xl p-8 sm:p-12 lg:p-16 shadow-2xl"
           initial={{ opacity: 0, y: 30 }}

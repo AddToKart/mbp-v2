@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   CalendarIcon,
@@ -12,7 +12,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import OptimizedImage from "@/components/OptimizedImage";
-import { useRef } from "react";
+import { useState, useEffect } from "react";
+import { useDismissedAnnouncements } from "@/hooks/useDismissedAnnouncements";
+import SwipeableCard from "@/components/SwipeableCard";
+import Toast from "@/components/Toast";
 
 const allAnnouncements = getAllAnnouncements().slice(0, 3);
 
@@ -111,20 +114,47 @@ const cardVariants = {
 };
 
 export default function BlogGrid() {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
+  const [isMounted, setIsMounted] = useState(false);
 
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
+  // Ensure component is mounted
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Swipe-to-dismiss functionality
+  const { isDismissed, dismissAnnouncement, undoDismiss, isLoaded } =
+    useDismissedAnnouncements();
+  const [showToast, setShowToast] = useState(false);
+  const [lastDismissedId, setLastDismissedId] = useState<string | null>(null);
+
+  const handleDismiss = (postId: string) => {
+    dismissAnnouncement(postId);
+    setLastDismissedId(postId);
+    setShowToast(true);
+  };
+
+  const handleUndo = () => {
+    if (lastDismissedId) {
+      undoDismiss(lastDismissedId);
+      setLastDismissedId(null);
+    }
+  };
+
+  // Filter out dismissed announcements
+  const visiblePosts = allAnnouncements.filter(
+    (post) => !isDismissed(post.id.toString())
+  );
+
+  // Don't render until localStorage is loaded to prevent flash
+  if (!isLoaded) {
+    return null;
+  }
 
   return (
-    <section ref={ref} className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-12"
-          style={{ y }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -137,6 +167,14 @@ export default function BlogGrid() {
           </p>
         </motion.div>
 
+        {/* Toast notification */}
+        <Toast
+          message="Announcement dismissed"
+          show={showToast}
+          onUndo={handleUndo}
+          onClose={() => setShowToast(false)}
+        />
+
         <motion.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           variants={containerVariants}
@@ -144,81 +182,95 @@ export default function BlogGrid() {
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
         >
-          {allAnnouncements.map((post, index) => (
-            <Link
-              key={post.id}
-              href={`/announcement/${post.id}`}
-              prefetch={true}
-            >
-              <motion.article
-                className="group cursor-pointer h-full"
-                variants={cardVariants}
-                layoutId={`announcement-card-${post.id}`}
-                transition={{
-                  layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
-                }}
-              >
-                <Card className="overflow-hidden hover:shadow-2xl smooth-transition h-full border-border">
-                  <motion.div
-                    className="relative h-48 overflow-hidden"
-                    layoutId={`announcement-image-${post.id}`}
-                    transition={{
-                      layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
-                    }}
-                    style={{ willChange: "transform" }}
-                  >
-                    <OptimizedImage
-                      src={post.image}
-                      alt={post.title}
-                      priority={false}
-                      enableHover={true}
-                    />
-                    <div className="absolute top-4 right-4">
-                      <Badge className="bg-card/90 backdrop-blur-sm text-primary border-border">
-                        {post.category}
-                      </Badge>
-                    </div>
-                  </motion.div>
+          <AnimatePresence mode="popLayout">
+            {visiblePosts.map((post, index) => {
+              // Disable swipe for critical announcements
+              const isCritical =
+                post.category === "Emergency" ||
+                post.category === "Public Safety";
 
-                  <CardContent className="flex-1 flex flex-col pt-6">
-                    <motion.h3
-                      className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition"
-                      layoutId={`announcement-title-${post.id}`}
+              return (
+                <SwipeableCard
+                  key={post.id}
+                  onDismiss={() => handleDismiss(post.id.toString())}
+                  disabled={isCritical}
+                >
+                  <Link href={`/announcement/${post.id}`} prefetch={true}>
+                    <motion.article
+                      className="group cursor-pointer h-full"
+                      variants={cardVariants}
+                      layoutId={`announcement-card-${post.id}`}
                       transition={{
-                        layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                        layout: {
+                          duration: 0.4,
+                          ease: [0.4, 0, 0.2, 1] as const,
+                        },
                       }}
                     >
-                      {post.title}
-                    </motion.h3>
-                    <p className="body-md text-muted-foreground mb-4 flex-1">
-                      {post.excerpt}
-                    </p>
+                      <Card className="overflow-hidden hover:shadow-2xl smooth-transition h-full border-border">
+                        <motion.div
+                          className="relative h-48 overflow-hidden"
+                          layoutId={`announcement-image-${post.id}`}
+                          transition={{
+                            layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                          }}
+                          style={{ willChange: "transform" }}
+                        >
+                          <OptimizedImage
+                            src={post.image}
+                            alt={post.title}
+                            priority={false}
+                            enableHover={true}
+                          />
+                          <div className="absolute top-4 right-4">
+                            <Badge className="bg-card/90 backdrop-blur-sm text-primary border-border">
+                              {post.category}
+                            </Badge>
+                          </div>
+                        </motion.div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-border">
-                      <div className="flex items-center gap-3 text-muted-foreground body-sm">
-                        <div className="flex items-center gap-1">
-                          <CalendarIcon className="w-4 h-4" />
-                          <span>{post.date}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <ClockIcon className="w-4 h-4" />
-                          <span>{post.readTime}</span>
-                        </div>
-                      </div>
+                        <CardContent className="flex-1 flex flex-col pt-6">
+                          <motion.h3
+                            className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition"
+                            layoutId={`announcement-title-${post.id}`}
+                            transition={{
+                              layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                            }}
+                          >
+                            {post.title}
+                          </motion.h3>
+                          <p className="body-md text-muted-foreground mb-4 flex-1">
+                            {post.excerpt}
+                          </p>
 
-                      <motion.div
-                        className="text-primary"
-                        whileHover={{ x: 5 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ArrowRightIcon className="w-5 h-5" />
-                      </motion.div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.article>
-            </Link>
-          ))}
+                          <div className="flex items-center justify-between pt-4 border-t border-border">
+                            <div className="flex items-center gap-3 text-muted-foreground body-sm">
+                              <div className="flex items-center gap-1">
+                                <CalendarIcon className="w-4 h-4" />
+                                <span>{post.date}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <ClockIcon className="w-4 h-4" />
+                                <span>{post.readTime}</span>
+                              </div>
+                            </div>
+
+                            <motion.div
+                              className="text-primary"
+                              whileHover={{ x: 5 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <ArrowRightIcon className="w-5 h-5" />
+                            </motion.div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.article>
+                  </Link>
+                </SwipeableCard>
+              );
+            })}
+          </AnimatePresence>
         </motion.div>
 
         <motion.div
