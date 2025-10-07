@@ -2,15 +2,33 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { CalendarIcon, ClockIcon, UserIcon, ArrowLeftIcon, ShareIcon } from "@heroicons/react/24/outline";
+import {
+  CalendarIcon,
+  ClockIcon,
+  UserIcon,
+  ArrowLeftIcon,
+  ShareIcon,
+} from "@heroicons/react/24/outline";
 import type { Announcement } from "@/lib/announcements";
 import ReactMarkdown from "react-markdown";
+import { useState, useEffect } from "react";
 
 interface AnnouncementDetailProps {
   announcement: Announcement;
 }
 
-export default function AnnouncementDetail({ announcement }: AnnouncementDetailProps) {
+export default function AnnouncementDetail({
+  announcement,
+}: AnnouncementDetailProps) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Preload the image to prevent stuttering
+  useEffect(() => {
+    const img = new Image();
+    img.src = announcement.image;
+    img.onload = () => setImageLoaded(true);
+  }, [announcement.image]);
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -45,9 +63,14 @@ export default function AnnouncementDetail({ announcement }: AnnouncementDetailP
         {/* Header */}
         <motion.div
           className="mb-8"
+          layoutId={`announcement-card-${announcement.id}`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{
+            layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+            opacity: { duration: 0.5 },
+            y: { duration: 0.5 },
+          }}
         >
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <span className="px-4 py-2 bg-primary text-white rounded-full text-sm font-semibold">
@@ -63,9 +86,13 @@ export default function AnnouncementDetail({ announcement }: AnnouncementDetailP
             ))}
           </div>
 
-          <h1 className="heading-xl text-text-primary mb-6">
+          <motion.h1
+            className="heading-xl text-text-primary mb-6"
+            layoutId={`announcement-title-${announcement.id}`}
+            transition={{ layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] } }}
+          >
             {announcement.title}
-          </h1>
+          </motion.h1>
 
           <div className="flex flex-wrap items-center gap-6 text-text-secondary body-md mb-6">
             <div className="flex items-center gap-2">
@@ -99,14 +126,20 @@ export default function AnnouncementDetail({ announcement }: AnnouncementDetailP
         {/* Featured Image */}
         <motion.div
           className="mb-12 rounded-2xl overflow-hidden shadow-xl"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          layoutId={`announcement-image-${announcement.id}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: imageLoaded ? 1 : 0 }}
+          transition={{
+            layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+            opacity: { duration: 0.3 },
+          }}
         >
           <img
             src={announcement.image}
             alt={announcement.title}
             className="w-full h-[400px] object-cover"
+            loading="eager"
+            decoding="async"
           />
         </motion.div>
 
@@ -120,16 +153,24 @@ export default function AnnouncementDetail({ announcement }: AnnouncementDetailP
           <ReactMarkdown
             components={{
               h1: ({ children }) => (
-                <h1 className="heading-lg text-text-primary mb-4">{children}</h1>
+                <h1 className="heading-lg text-text-primary mb-4">
+                  {children}
+                </h1>
               ),
               h2: ({ children }) => (
-                <h2 className="heading-md text-text-primary mb-3 mt-8">{children}</h2>
+                <h2 className="heading-md text-text-primary mb-3 mt-8">
+                  {children}
+                </h2>
               ),
               h3: ({ children }) => (
-                <h3 className="heading-sm text-text-primary mb-2 mt-6">{children}</h3>
+                <h3 className="heading-sm text-text-primary mb-2 mt-6">
+                  {children}
+                </h3>
               ),
               p: ({ children }) => (
-                <p className="body-lg text-text-secondary mb-4 leading-relaxed">{children}</p>
+                <p className="body-lg text-text-secondary mb-4 leading-relaxed">
+                  {children}
+                </p>
               ),
               ul: ({ children }) => (
                 <ul className="list-disc list-inside space-y-2 mb-4 text-text-secondary body-md">
@@ -142,7 +183,9 @@ export default function AnnouncementDetail({ announcement }: AnnouncementDetailP
                 </ol>
               ),
               strong: ({ children }) => (
-                <strong className="font-semibold text-text-primary">{children}</strong>
+                <strong className="font-semibold text-text-primary">
+                  {children}
+                </strong>
               ),
               hr: () => <hr className="my-8 border-border" />,
             }}
@@ -158,11 +201,10 @@ export default function AnnouncementDetail({ announcement }: AnnouncementDetailP
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <h3 className="heading-sm text-text-primary mb-4">
-            Stay Connected
-          </h3>
+          <h3 className="heading-sm text-text-primary mb-4">Stay Connected</h3>
           <p className="body-md text-text-secondary mb-6">
-            Subscribe to our newsletter to receive updates on announcements like this directly to your inbox.
+            Subscribe to our newsletter to receive updates on announcements like
+            this directly to your inbox.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <input

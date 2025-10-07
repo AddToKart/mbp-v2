@@ -208,6 +208,20 @@ body {
   transition-property: all;
 }
 
+/* Shimmer animation for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;

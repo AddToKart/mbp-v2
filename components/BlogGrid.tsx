@@ -145,13 +145,28 @@ export default function BlogGrid() {
           viewport={{ once: true, margin: "-100px" }}
         >
           {allAnnouncements.map((post, index) => (
-            <Link key={post.id} href={`/announcement/${post.id}`}>
+            <Link
+              key={post.id}
+              href={`/announcement/${post.id}`}
+              prefetch={true}
+            >
               <motion.article
                 className="group cursor-pointer h-full"
                 variants={cardVariants}
+                layoutId={`announcement-card-${post.id}`}
+                transition={{
+                  layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                }}
               >
                 <Card className="overflow-hidden hover:shadow-2xl smooth-transition h-full border-border">
-                  <div className="relative h-48 overflow-hidden">
+                  <motion.div
+                    className="relative h-48 overflow-hidden"
+                    layoutId={`announcement-image-${post.id}`}
+                    transition={{
+                      layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                    }}
+                    style={{ willChange: "transform" }}
+                  >
                     <OptimizedImage
                       src={post.image}
                       alt={post.title}
@@ -163,12 +178,18 @@ export default function BlogGrid() {
                         {post.category}
                       </Badge>
                     </div>
-                  </div>
+                  </motion.div>
 
                   <CardContent className="flex-1 flex flex-col pt-6">
-                    <h3 className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition">
+                    <motion.h3
+                      className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition"
+                      layoutId={`announcement-title-${post.id}`}
+                      transition={{
+                        layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                      }}
+                    >
                       {post.title}
-                    </h3>
+                    </motion.h3>
                     <p className="body-md text-muted-foreground mb-4 flex-1">
                       {post.excerpt}
                     </p>

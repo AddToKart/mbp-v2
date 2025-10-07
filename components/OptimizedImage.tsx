@@ -15,10 +15,10 @@ interface OptimizedImageProps {
 
 // Helper function to optimize Unsplash URLs
 const optimizeImageUrl = (url: string, width: number = 800): string => {
-  if (!url.includes('unsplash.com')) return url;
-  
+  if (!url.includes("unsplash.com")) return url;
+
   // Add Unsplash URL parameters for optimization
-  const separator = url.includes('?') ? '&' : '?';
+  const separator = url.includes("?") ? "&" : "?";
   return `${url}${separator}w=${width}&q=75&auto=format`;
 };
 
@@ -38,11 +38,11 @@ export default function OptimizedImage({
 
   const ImageComponent = (
     <>
-      {/* Loading skeleton */}
+      {/* Loading skeleton with shimmer effect */}
       {isLoading && (
-        <div className="absolute inset-0 bg-muted animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-r from-muted via-muted-foreground/20 to-muted bg-[length:200%_100%] animate-shimmer" />
       )}
-      
+
       {/* Actual image */}
       <Image
         src={imageError ? fallbackImage : optimizedSrc}
@@ -53,8 +53,8 @@ export default function OptimizedImage({
         } ${className}`}
         sizes={sizes}
         priority={priority}
-        unoptimized={true} // Bypass Next.js optimization to prevent timeout
-        onLoadingComplete={() => setIsLoading(false)}
+        unoptimized={true}
+        onLoad={() => setIsLoading(false)}
         onError={() => {
           setImageError(true);
           setIsLoading(false);

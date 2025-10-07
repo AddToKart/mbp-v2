@@ -111,15 +111,26 @@ export default function FeaturedAnnouncements() {
             <Link
               key={announcement.id}
               href={`/announcement/${announcement.id}`}
+              prefetch={true}
             >
               <motion.div
                 className="group cursor-pointer h-full"
                 variants={cardVariants}
                 whileHover={{ y: -8, scale: 1.02 }}
-                transition={{ duration: 0.3 }}
+                transition={{
+                  layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const },
+                }}
+                layoutId={`announcement-card-${announcement.id}`}
               >
                 <Card className="overflow-hidden hover:shadow-2xl smooth-transition border-border h-full">
-                  <div className="relative h-56 overflow-hidden">
+                  <motion.div
+                    className="relative h-56 overflow-hidden"
+                    layoutId={`announcement-image-${announcement.id}`}
+                    transition={{
+                      layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                    }}
+                    style={{ willChange: "transform" }}
+                  >
                     <OptimizedImage
                       src={announcement.image}
                       alt={announcement.title}
@@ -131,12 +142,18 @@ export default function FeaturedAnnouncements() {
                         {announcement.category}
                       </Badge>
                     </div>
-                  </div>
+                  </motion.div>
 
                   <CardContent className="pt-6">
-                    <h3 className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition">
+                    <motion.h3
+                      className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition"
+                      layoutId={`announcement-title-${announcement.id}`}
+                      transition={{
+                        layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
+                      }}
+                    >
                       {announcement.title}
-                    </h3>
+                    </motion.h3>
                     <p className="body-md text-muted-foreground mb-4">
                       {announcement.excerpt}
                     </p>
