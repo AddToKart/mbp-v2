@@ -8,9 +8,13 @@ import { Button } from "@/components/ui/button";
 
 interface ThemeToggleProps {
   className?: string;
+  isTransparent?: boolean;
 }
 
-export default function ThemeToggle({ className = "" }: ThemeToggleProps) {
+export default function ThemeToggle({
+  className = "",
+  isTransparent = false,
+}: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -32,7 +36,11 @@ export default function ThemeToggle({ className = "" }: ThemeToggleProps) {
         onClick={toggleTheme}
         variant="outline"
         size="icon"
-        className={`rounded-full hover:bg-primary/10 hover:border-primary ${className}`}
+        className={`rounded-full hover:bg-primary/10 hover:border-primary ${
+          isTransparent
+            ? "border-white/50 bg-white/10 text-white hover:bg-white/20"
+            : ""
+        } ${className}`}
         aria-label="Toggle theme"
       >
         <motion.div
@@ -44,9 +52,15 @@ export default function ThemeToggle({ className = "" }: ThemeToggleProps) {
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
           {theme === "light" ? (
-            <MoonIcon className="w-5 h-5" />
+            <MoonIcon
+              className={`w-5 h-5 ${isTransparent ? "text-white" : ""}`}
+            />
           ) : (
-            <SunIcon className="w-5 h-5 text-accent" />
+            <SunIcon
+              className={`w-5 h-5 ${
+                isTransparent ? "text-white" : "text-accent"
+              }`}
+            />
           )}
         </motion.div>
       </Button>

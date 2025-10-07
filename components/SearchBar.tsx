@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export default function SearchBar() {
   return (
-    <section className="py-12 px-4 sm:px-6 lg:px-8 bg-card sticky top-0 z-40 shadow-md border-b border-border">
+    <section className="py-12 px-4 sm:px-6 lg:px-8 bg-card shadow-md border-b border-border">
       <div className="max-w-4xl mx-auto">
         <motion.div
           className="flex flex-col sm:flex-row gap-4"

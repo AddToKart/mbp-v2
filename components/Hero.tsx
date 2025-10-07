@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -58,14 +59,19 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                size="lg"
-                className="px-8 bg-white text-primary hover:bg-white/90 rounded-full shadow-lg hover:shadow-xl font-semibold"
+            <Link href="/announcements">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Latest Updates
-              </Button>
-            </motion.div>
+                <Button
+                  size="lg"
+                  className="px-8 bg-white text-primary hover:bg-white/90 rounded-full shadow-lg hover:shadow-xl font-semibold"
+                >
+                  Latest Updates
+                </Button>
+              </motion.div>
+            </Link>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 variant="outline"

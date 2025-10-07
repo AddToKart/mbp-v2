@@ -20,7 +20,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Announcements", href: "/#announcements" },
+    { name: "Announcements", href: "/announcements" },
     { name: "Services", href: "/#services" },
     { name: "Transparency", href: "/#transparency" },
     { name: "Contact", href: "/#contact" },
@@ -28,9 +28,9 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      className={`fixed top-0 left-0 right-0 z-40 theme-transition ${
+      className={`fixed top-0 left-0 right-0 z-50 theme-transition ${
         isScrolled
-          ? "bg-surface/95 backdrop-blur-md shadow-lg border-b border-border/50"
+          ? "bg-card/95 backdrop-blur-md shadow-lg border-b border-border/50"
           : "bg-transparent"
       }`}
       initial={{ y: -100 }}
@@ -49,10 +49,20 @@ export default function Navbar() {
                 <span className="text-white font-bold text-xl">SM</span>
               </div>
               <div className="hidden sm:block">
-                <h1 className="font-bold text-text-primary text-lg">
+                <h1
+                  className={`font-bold text-lg ${
+                    isScrolled ? "text-foreground" : "text-white"
+                  }`}
+                >
                   Santa Maria
                 </h1>
-                <p className="text-text-secondary text-xs">Municipal Government</p>
+                <p
+                  className={`text-xs ${
+                    isScrolled ? "text-muted-foreground" : "text-white/90"
+                  }`}
+                >
+                  Municipal Government
+                </p>
               </div>
             </motion.div>
           </Link>
@@ -62,21 +72,23 @@ export default function Navbar() {
             {navLinks.map((link) => (
               <Link key={link.name} href={link.href}>
                 <motion.span
-                  className="text-text-primary hover:text-primary smooth-transition font-medium cursor-pointer"
+                  className={`hover:text-primary smooth-transition font-medium cursor-pointer ${
+                    isScrolled ? "text-foreground" : "text-white"
+                  }`}
                   whileHover={{ y: -2 }}
                 >
                   {link.name}
                 </motion.span>
               </Link>
             ))}
-            <ThemeToggle />
+            <ThemeToggle isTransparent={!isScrolled} />
           </div>
 
           {/* Mobile Menu Button and Theme Toggle */}
           <div className="md:hidden flex items-center gap-3">
-            <ThemeToggle />
+            <ThemeToggle isTransparent={!isScrolled} />
             <button
-              className="p-2 text-text-primary"
+              className={`p-2 ${isScrolled ? "text-foreground" : "text-white"}`}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -92,7 +104,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <motion.div
-          className="md:hidden bg-surface border-t border-border"
+          className="md:hidden bg-card border-t border-border"
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}

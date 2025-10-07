@@ -11,8 +11,9 @@ import { getAllAnnouncements } from "@/lib/announcements";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import OptimizedImage from "@/components/OptimizedImage";
 
-const allAnnouncements = getAllAnnouncements();
+const allAnnouncements = getAllAnnouncements().slice(0, 3);
 
 const blogPosts = [
   {
@@ -113,12 +114,11 @@ export default function BlogGrid() {
               >
                 <Card className="overflow-hidden hover:shadow-2xl smooth-transition h-full border-border">
                   <div className="relative h-48 overflow-hidden">
-                    <motion.img
+                    <OptimizedImage
                       src={post.image}
                       alt={post.title}
-                      className="w-full h-full object-cover"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ duration: 0.4 }}
+                      priority={false}
+                      enableHover={true}
                     />
                     <div className="absolute top-4 right-4">
                       <Badge className="bg-card/90 backdrop-blur-sm text-primary border-border">
@@ -169,14 +169,16 @@ export default function BlogGrid() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              size="lg"
-              className="px-8 rounded-full shadow-lg hover:shadow-xl"
-            >
-              Load More Posts
-            </Button>
-          </motion.div>
+          <Link href="/announcements">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                size="lg"
+                className="px-8 rounded-full shadow-lg hover:shadow-xl"
+              >
+                Load More Posts
+              </Button>
+            </motion.div>
+          </Link>
         </motion.div>
       </div>
     </section>
