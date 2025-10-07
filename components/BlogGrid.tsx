@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import {
   CalendarIcon,
@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import OptimizedImage from "@/components/OptimizedImage";
+import { useRef } from "react";
 
 const allAnnouncements = getAllAnnouncements().slice(0, 3);
 
@@ -110,11 +111,20 @@ const cardVariants = {
 };
 
 export default function BlogGrid() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
+
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
+    <section ref={ref} className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-12"
+          style={{ y }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
