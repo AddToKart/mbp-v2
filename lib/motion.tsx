@@ -1,9 +1,9 @@
 "use client";
-
 import {
   LazyMotion,
   m,
   AnimatePresence,
+  LayoutGroup,
   useReducedMotion,
   useMotionValue,
   useTransform,
@@ -16,6 +16,7 @@ export function loadMotionFeatures() {
 
 export {
   AnimatePresence,
+  LayoutGroup,
   useReducedMotion,
   useMotionValue,
   useTransform,

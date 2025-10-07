@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "@/lib/motion";
+import { motion, useReducedMotion } from "@/lib/motion";
 import Link from "next/link";
 import {
   CalendarIcon,
@@ -21,6 +21,7 @@ export default function AnnouncementDetail({
   announcement,
 }: AnnouncementDetailProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   // Preload the image to prevent stuttering
   useEffect(() => {
@@ -44,13 +45,26 @@ export default function AnnouncementDetail({
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-background">
+    <motion.div
+      className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-background"
+      initial={
+        prefersReducedMotion
+          ? { opacity: 0 }
+          : { opacity: 0, y: 16, scale: 0.97 }
+      }
+      animate={
+        prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }
+      }
+      transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
+      style={{ willChange: "transform, opacity" }}
+    >
       <div className="max-w-4xl mx-auto">
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
+          style={{ willChange: "transform, opacity" }}
         >
           <Link href="/">
             <button className="flex items-center gap-2 text-text-secondary hover:text-primary smooth-transition mb-8">
@@ -63,14 +77,10 @@ export default function AnnouncementDetail({
         {/* Header */}
         <motion.div
           className="mb-8"
-          layoutId={`announcement-card-${announcement.id}`}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
-            opacity: { duration: 0.5 },
-            y: { duration: 0.5 },
-          }}
+          initial={{ opacity: 0, y: 16, scale: 0.99 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
+          style={{ willChange: "transform, opacity" }}
         >
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <span className="px-4 py-2 bg-primary text-white rounded-full text-sm font-semibold">
@@ -88,8 +98,14 @@ export default function AnnouncementDetail({
 
           <motion.h1
             className="heading-xl text-text-primary mb-6"
-            layoutId={`announcement-title-${announcement.id}`}
-            transition={{ layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] } }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.35,
+              ease: [0.22, 0.61, 0.36, 1],
+              delay: 0.06,
+            }}
+            style={{ willChange: "transform, opacity" }}
           >
             {announcement.title}
           </motion.h1>
@@ -126,13 +142,14 @@ export default function AnnouncementDetail({
         {/* Featured Image */}
         <motion.div
           className="mb-12 rounded-2xl overflow-hidden shadow-xl"
-          layoutId={`announcement-image-${announcement.id}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: imageLoaded ? 1 : 0 }}
-          transition={{
-            layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
-            opacity: { duration: 0.3 },
-          }}
+          initial={{ opacity: 0, scale: 0.98, y: 16 }}
+          animate={
+            imageLoaded
+              ? { opacity: 1, scale: 1, y: 0 }
+              : { opacity: 0.6, scale: 0.99, y: 8 }
+          }
+          transition={{ duration: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
+          style={{ willChange: "transform, opacity" }}
         >
           <img
             src={announcement.image}
@@ -149,6 +166,7 @@ export default function AnnouncementDetail({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
+          style={{ willChange: "transform, opacity" }}
         >
           <ReactMarkdown
             components={{
@@ -200,6 +218,7 @@ export default function AnnouncementDetail({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
+          style={{ willChange: "transform, opacity" }}
         >
           <h3 className="heading-sm text-text-primary mb-4">Stay Connected</h3>
           <p className="body-md text-text-secondary mb-6">
@@ -218,6 +237,6 @@ export default function AnnouncementDetail({
           </div>
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

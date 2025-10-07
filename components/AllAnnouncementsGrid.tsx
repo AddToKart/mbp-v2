@@ -191,14 +191,27 @@ export default function AllAnnouncementsGrid() {
           initial="hidden"
           animate="visible"
         >
-          {currentPosts.map((post, index) => (
+          {currentPosts.map((post) => (
             <Link key={post.id} href={`/announcement/${post.id}`}>
               <motion.article
                 className="group cursor-pointer h-full"
                 variants={cardVariants}
+                whileHover={{ y: -6, scale: 1.01 }}
+                transition={{
+                  duration: 0.25,
+                  ease: [0.22, 0.61, 0.36, 1] as const,
+                }}
               >
                 <Card className="overflow-hidden hover:shadow-2xl smooth-transition h-full border-border">
-                  <div className="relative h-48 overflow-hidden">
+                  <motion.div
+                    className="relative h-48 overflow-hidden"
+                    initial={false}
+                    whileHover={{ scale: 1.04 }}
+                    transition={{
+                      duration: 0.4,
+                      ease: [0.22, 0.61, 0.36, 1] as const,
+                    }}
+                  >
                     <OptimizedImage
                       src={post.image}
                       alt={post.title}
@@ -210,12 +223,17 @@ export default function AllAnnouncementsGrid() {
                         {post.category}
                       </Badge>
                     </div>
-                  </div>
+                  </motion.div>
 
                   <CardContent className="flex-1 flex flex-col pt-6">
-                    <h3 className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition">
+                    <motion.h3
+                      className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition"
+                      initial={false}
+                      whileHover={{ x: 4 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       {post.title}
-                    </h3>
+                    </motion.h3>
                     <p className="body-md text-muted-foreground mb-4 flex-1">
                       {post.excerpt}
                     </p>
