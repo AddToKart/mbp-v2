@@ -84,6 +84,31 @@ const blogPosts = [
   },
 ];
 
+// Animation variants for stagger effect
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+      ease: [0.4, 0, 0.2, 1] as const,
+    },
+  },
+};
+
 export default function BlogGrid() {
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
@@ -102,15 +127,18 @@ export default function BlogGrid() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
           {allAnnouncements.map((post, index) => (
             <Link key={post.id} href={`/announcement/${post.id}`}>
               <motion.article
                 className="group cursor-pointer h-full"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                variants={cardVariants}
               >
                 <Card className="overflow-hidden hover:shadow-2xl smooth-transition h-full border-border">
                   <div className="relative h-48 overflow-hidden">
@@ -160,7 +188,7 @@ export default function BlogGrid() {
               </motion.article>
             </Link>
           ))}
-        </div>
+        </motion.div>
 
         <motion.div
           className="text-center mt-12"

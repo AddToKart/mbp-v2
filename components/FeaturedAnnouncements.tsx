@@ -10,6 +10,31 @@ import OptimizedImage from "@/components/OptimizedImage";
 
 const announcements = getAllAnnouncements().slice(0, 3);
 
+// Animation variants for stagger effect
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 40, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: [0.4, 0, 0.2, 1] as const,
+    },
+  },
+};
+
 const displayAnnouncements = [
   {
     id: 1,
@@ -65,7 +90,13 @@ export default function FeaturedAnnouncements() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
           {displayAnnouncements.map((announcement, index) => (
             <Link
               key={announcement.id}
@@ -73,11 +104,9 @@ export default function FeaturedAnnouncements() {
             >
               <motion.div
                 className="group cursor-pointer h-full"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -8 }}
+                variants={cardVariants}
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ duration: 0.3 }}
               >
                 <Card className="overflow-hidden hover:shadow-2xl smooth-transition border-border h-full">
                   <div className="relative h-56 overflow-hidden">
@@ -117,7 +146,7 @@ export default function FeaturedAnnouncements() {
               </motion.div>
             </Link>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

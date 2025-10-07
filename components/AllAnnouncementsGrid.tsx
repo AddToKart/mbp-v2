@@ -18,6 +18,31 @@ import { Button } from "@/components/ui/button";
 
 const POSTS_PER_PAGE = 9;
 
+// Animation variants for stagger effect
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+      ease: [0.4, 0, 0.2, 1] as const,
+    },
+  },
+};
+
 export default function AllAnnouncementsGrid() {
   const [currentPage, setCurrentPage] = useState(1);
   const allAnnouncements = getAllAnnouncements();
@@ -148,14 +173,18 @@ export default function AllAnnouncementsGrid() {
         </motion.div>
 
         {/* Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <motion.div
+          key={currentPage}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {currentPosts.map((post, index) => (
             <Link key={post.id} href={`/announcement/${post.id}`}>
               <motion.article
                 className="group cursor-pointer h-full"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                variants={cardVariants}
               >
                 <Card className="overflow-hidden hover:shadow-2xl smooth-transition h-full border-border">
                   <div className="relative h-48 overflow-hidden">
@@ -205,7 +234,7 @@ export default function AllAnnouncementsGrid() {
               </motion.article>
             </Link>
           ))}
-        </div>
+        </motion.div>
 
         {/* Pagination */}
         <motion.div

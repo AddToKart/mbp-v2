@@ -16,13 +16,18 @@ export default function Navbar() {
   const isHomePage = pathname === "/";
 
   useEffect(() => {
-    const handleScroll = () => {
+    // Check initial scroll position on mount
+    const checkScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
+    // Set initial state
+    checkScroll();
+
+    // Add scroll listener
+    window.addEventListener("scroll", checkScroll);
+    return () => window.removeEventListener("scroll", checkScroll);
+  }, []);
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Announcements", href: "/announcements" },
