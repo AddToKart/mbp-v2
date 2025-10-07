@@ -1,0 +1,111 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+
+export default function Navbar() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "Announcements", href: "/#announcements" },
+    { name: "Services", href: "/#services" },
+    { name: "Transparency", href: "/#transparency" },
+    { name: "Contact", href: "/#contact" },
+  ];
+
+  return (
+    <motion.nav
+      className={`fixed top-0 left-0 right-0 z-40 theme-transition ${
+        isScrolled
+          ? "bg-surface/95 backdrop-blur-md shadow-lg border-b border-border/50"
+          : "bg-transparent"
+      }`}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20">
+          {/* Logo */}
+          <Link href="/">
+            <motion.div
+              className="flex items-center gap-3 cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">SM</span>
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="font-bold text-text-primary text-lg">
+                  Santa Maria
+                </h1>
+                <p className="text-text-secondary text-xs">Municipal Government</p>
+              </div>
+            </motion.div>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <Link key={link.name} href={link.href}>
+                <motion.span
+                  className="text-text-primary hover:text-primary smooth-transition font-medium cursor-pointer"
+                  whileHover={{ y: -2 }}
+                >
+                  {link.name}
+                </motion.span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 text-text-primary"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? (
+              <XMarkIcon className="w-6 h-6" />
+            ) : (
+              <Bars3Icon className="w-6 h-6" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <motion.div
+          className="md:hidden bg-surface border-t border-border"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+        >
+          <div className="px-4 py-4 space-y-3">
+            {navLinks.map((link) => (
+              <Link key={link.name} href={link.href}>
+                <div
+                  className="block py-2 text-text-primary hover:text-primary smooth-transition font-medium"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </motion.nav>
+  );
+}
