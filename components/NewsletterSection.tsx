@@ -2,10 +2,12 @@
 
 import { motion } from "framer-motion";
 import { EnvelopeIcon, BellAlertIcon } from "@heroicons/react/24/outline";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function NewsletterSection() {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-surface">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card">
       <div className="max-w-4xl mx-auto">
         <motion.div
           className="bg-gradient-to-br from-primary to-secondary rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden"
@@ -48,7 +50,8 @@ export default function NewsletterSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              Subscribe to our newsletter and never miss important updates, events, and announcements from Santa Maria Municipal.
+              Subscribe to our newsletter and never miss important updates,
+              events, and announcements from Santa Maria Municipal.
             </motion.p>
 
             <motion.form
@@ -60,22 +63,26 @@ export default function NewsletterSection() {
               onSubmit={(e) => e.preventDefault()}
             >
               <div className="flex-1 relative">
-                <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                <input
+                <EnvelopeIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
+                <Input
                   type="email"
                   placeholder="Enter your email address"
-                  className="w-full pl-12 pr-4 py-4 rounded-full border-2 border-transparent focus:border-white focus:outline-none smooth-transition body-md bg-surface text-text-primary"
+                  className="w-full pl-12 pr-4 h-12 rounded-full bg-white border-white text-foreground placeholder:text-muted-foreground"
                   required
                 />
               </div>
-              <motion.button
-                type="submit"
-                className="px-8 py-4 bg-white text-primary rounded-full font-semibold hover:bg-white/90 smooth-transition shadow-lg"
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Subscribe
-              </motion.button>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="px-8 h-12 bg-white text-primary hover:bg-white/90 rounded-full shadow-lg font-semibold"
+                >
+                  Subscribe
+                </Button>
+              </motion.div>
             </motion.form>
 
             <motion.p

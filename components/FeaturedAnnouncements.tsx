@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { CalendarIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { getAllAnnouncements } from "@/lib/announcements";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const announcements = getAllAnnouncements().slice(0, 3);
 
@@ -39,7 +41,7 @@ const displayAnnouncements = [
 
 export default function FeaturedAnnouncements() {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-surface">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-12"
@@ -48,10 +50,10 @@ export default function FeaturedAnnouncements() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="heading-lg text-text-primary mb-4">
+          <h2 className="heading-lg text-foreground mb-4">
             Featured Announcements
           </h2>
-          <p className="body-lg text-text-secondary max-w-2xl mx-auto">
+          <p className="body-lg text-muted-foreground max-w-2xl mx-auto">
             Stay informed with our most important updates and initiatives
           </p>
         </motion.div>
@@ -61,48 +63,48 @@ export default function FeaturedAnnouncements() {
             <Link key={announcement.id} href={`/announcement/${announcement.id}`}>
               <motion.div
                 className="group cursor-pointer h-full"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{ y: -8 }}
-            >
-              <div className="bg-surface rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl smooth-transition border border-border">
-                <div className="relative h-56 overflow-hidden">
-                  <motion.img
-                    src={announcement.image}
-                    alt={announcement.title}
-                    className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.4 }}
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className="px-4 py-2 bg-primary text-white rounded-full text-sm font-semibold">
-                      {announcement.category}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-6 bg-surface">
-                  <h3 className="heading-sm text-text-primary mb-3 group-hover:text-primary smooth-transition">
-                    {announcement.title}
-                  </h3>
-                  <p className="body-md text-text-secondary mb-4">
-                    {announcement.excerpt}
-                  </p>
-
-                  <div className="flex items-center gap-4 text-text-secondary body-sm">
-                    <div className="flex items-center gap-1">
-                      <CalendarIcon className="w-4 h-4" />
-                      <span>{announcement.date}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <ClockIcon className="w-4 h-4" />
-                      <span>{announcement.readTime}</span>
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ y: -8 }}
+              >
+                <Card className="overflow-hidden hover:shadow-2xl smooth-transition border-border h-full">
+                  <div className="relative h-56 overflow-hidden">
+                    <motion.img
+                      src={announcement.image}
+                      alt={announcement.title}
+                      className="w-full h-full object-cover"
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.4 }}
+                    />
+                    <div className="absolute top-4 left-4">
+                      <Badge className="bg-primary text-primary-foreground">
+                        {announcement.category}
+                      </Badge>
                     </div>
                   </div>
-                </div>
-              </div>
+
+                  <CardContent className="pt-6">
+                    <h3 className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition">
+                      {announcement.title}
+                    </h3>
+                    <p className="body-md text-muted-foreground mb-4">
+                      {announcement.excerpt}
+                    </p>
+
+                    <div className="flex items-center gap-4 text-muted-foreground body-sm">
+                      <div className="flex items-center gap-1">
+                        <CalendarIcon className="w-4 h-4" />
+                        <span>{announcement.date}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <ClockIcon className="w-4 h-4" />
+                        <span>{announcement.readTime}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             </Link>
           ))}

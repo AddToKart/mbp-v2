@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { Button } from "@/components/ui/button";
 
 export default function Hero() {
   return (
@@ -16,7 +17,8 @@ export default function Hero() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1552633873-a7c526fcf3a5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw0fHxnb3Zlcm5tZW50JTIwYnVpbGRpbmclMjBtdW5pY2lwYWxpdHklMjBoYWxsJTIwbW9kZXJuJTIwYXJjaGl0ZWN0dXJlfGVufDB8MHx8Ymx1ZXwxNzU5ODM5MzU0fDA&ixlib=rb-4.1.0&q=85')",
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1552633873-a7c526fcf3a5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw0fHxnb3Zlcm5tZW50JTIwYnVpbGRpbmclMjBtdW5pY2lwYWxpdHklMjBoYWxsJTIwbW9kZXJuJTIwYXJjaGl0ZWN0dXJlfGVufDB8MHx8Ymx1ZXwxNzU5ODM5MzU0fDA&ixlib=rb-4.1.0&q=85')",
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary-dark/80 to-secondary/70" />
@@ -46,7 +48,8 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            Your trusted source for government announcements, transparency reports, and community updates. Building a better future together.
+            Your trusted source for government announcements, transparency
+            reports, and community updates. Building a better future together.
           </motion.p>
 
           <motion.div
@@ -55,12 +58,23 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
           >
-            <button className="px-8 py-4 bg-white text-primary rounded-full font-semibold hover:bg-white/90 smooth-transition shadow-lg hover:shadow-xl hover:scale-105">
-              Latest Updates
-            </button>
-            <button className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-semibold hover:bg-white/10 smooth-transition">
-              Transparency Portal
-            </button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                size="lg"
+                className="px-8 bg-white text-primary hover:bg-white/90 rounded-full shadow-lg hover:shadow-xl font-semibold"
+              >
+                Latest Updates
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="outline"
+                size="lg"
+                className="px-8 border-2 border-white text-white hover:bg-white/10 rounded-full bg-transparent font-semibold"
+              >
+                Transparency Portal
+              </Button>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>

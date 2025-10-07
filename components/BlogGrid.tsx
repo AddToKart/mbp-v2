@@ -2,8 +2,15 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { CalendarIcon, ClockIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import {
+  CalendarIcon,
+  ClockIcon,
+  ArrowRightIcon,
+} from "@heroicons/react/24/outline";
 import { getAllAnnouncements } from "@/lib/announcements";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const allAnnouncements = getAllAnnouncements();
 
@@ -11,8 +18,10 @@ const blogPosts = [
   {
     id: 1,
     title: "Urban Development Plan 2025-2030",
-    excerpt: "Comprehensive overview of our city's growth strategy focusing on sustainable infrastructure and smart city initiatives.",
-    image: "https://images.unsplash.com/photo-1758304480874-253e82fc6418?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHxjaXR5JTIwcGxhbm5pbmclMjB1cmJhbiUyMGRldmVsb3BtZW50JTIwYWVyaWFsJTIwY2l0eSUyMHZpZXd8ZW58MHwwfHx8MTc1OTgzOTM1NHww&ixlib=rb-4.1.0&q=85",
+    excerpt:
+      "Comprehensive overview of our city's growth strategy focusing on sustainable infrastructure and smart city initiatives.",
+    image:
+      "https://images.unsplash.com/photo-1758304480874-253e82fc6418?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHxjaXR5JTIwcGxhbm5pbmclMjB1cmJhbiUyMGRldmVsb3BtZW50JTIwYWVyaWFsJTIwY2l0eSUyMHZpZXd8ZW58MHwwfHx8MTc1OTgzOTM1NHww&ixlib=rb-4.1.0&q=85",
     category: "Transparency",
     date: "January 8, 2025",
     readTime: "8 min read",
@@ -20,8 +29,10 @@ const blogPosts = [
   {
     id: 2,
     title: "Green Spaces Initiative Launch",
-    excerpt: "New parks and recreational areas to enhance community wellness and environmental sustainability.",
-    image: "https://images.unsplash.com/photo-1604287285211-148c4be92d12?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwzfHxlbnZpcm9ubWVudGFsJTIwc3VzdGFpbmFiaWxpdHklMjBncmVlbiUyMHNwYWNlcyUyMHVyYmFuJTIwcGFya3N8ZW58MHwwfHxncmVlbnwxNzU5ODM5MzU0fDA&ixlib=rb-4.1.0&q=85",
+    excerpt:
+      "New parks and recreational areas to enhance community wellness and environmental sustainability.",
+    image:
+      "https://images.unsplash.com/photo-1604287285211-148c4be92d12?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwzfHxlbnZpcm9ubWVudGFsJTIwc3VzdGFpbmFiaWxpdHklMjBncmVlbiUyMHNwYWNlcyUyMHVyYmFuJTIwcGFya3N8ZW58MHwwfHxncmVlbnwxNzU5ODM5MzU0fDA&ixlib=rb-4.1.0&q=85",
     category: "Community Updates",
     date: "January 6, 2025",
     readTime: "6 min read",
@@ -29,8 +40,10 @@ const blogPosts = [
   {
     id: 3,
     title: "Public Transit Expansion Update",
-    excerpt: "Progress report on new bus routes and improved service frequency across all districts.",
-    image: "https://images.unsplash.com/photo-1601247173792-b282c350cabc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw1fHxwdWJsaWMlMjB0cmFuc3BvcnRhdGlvbiUyMGJ1c2VzJTIwdHJhbnNpdCUyMGluZnJhc3RydWN0dXJlfGVufDB8MHx8fDE3NTk4MzkzNTd8MA&ixlib=rb-4.1.0&q=85",
+    excerpt:
+      "Progress report on new bus routes and improved service frequency across all districts.",
+    image:
+      "https://images.unsplash.com/photo-1601247173792-b282c350cabc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw1fHxwdWJsaWMlMjB0cmFuc3BvcnRhdGlvbiUyMGJ1c2VzJTIwdHJhbnNpdCUyMGluZnJhc3RydWN0dXJlfGVufDB8MHx8fDE3NTk4MzkzNTd8MA&ixlib=rb-4.1.0&q=85",
     category: "Public Services",
     date: "January 4, 2025",
     readTime: "5 min read",
@@ -38,8 +51,10 @@ const blogPosts = [
   {
     id: 4,
     title: "Education Excellence Program",
-    excerpt: "Investing in our future with enhanced educational facilities and innovative learning programs.",
-    image: "https://images.unsplash.com/photo-1567057419565-4349c49d8a04?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxlZHVjYXRpb24lMjBzY2hvb2wlMjBzdHVkZW50cyUyMGxlYXJuaW5nfGVufDB8MHx8fDE3NTk4MzkzNTh8MA&ixlib=rb-4.1.0&q=85",
+    excerpt:
+      "Investing in our future with enhanced educational facilities and innovative learning programs.",
+    image:
+      "https://images.unsplash.com/photo-1567057419565-4349c49d8a04?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxlZHVjYXRpb24lMjBzY2hvb2wlMjBzdHVkZW50cyUyMGxlYXJuaW5nfGVufDB8MHx8fDE3NTk4MzkzNTh8MA&ixlib=rb-4.1.0&q=85",
     category: "Reports",
     date: "January 2, 2025",
     readTime: "7 min read",
@@ -47,8 +62,10 @@ const blogPosts = [
   {
     id: 5,
     title: "Healthcare Access Improvements",
-    excerpt: "Expanding medical services and facilities to ensure quality healthcare for all residents.",
-    image: "https://images.unsplash.com/photo-1710074213379-2a9c2653046a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxoZWFsdGhjYXJlJTIwbWVkaWNhbCUyMGZhY2lsaXRpZXMlMjBob3NwaXRhbHxlbnwwfDB8fHwxNzU5ODM5MzU4fDA&ixlib=rb-4.1.0&q=85",
+    excerpt:
+      "Expanding medical services and facilities to ensure quality healthcare for all residents.",
+    image:
+      "https://images.unsplash.com/photo-1710074213379-2a9c2653046a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxoZWFsdGhjYXJlJTIwbWVkaWNhbCUyMGZhY2lsaXRpZXMlMjBob3NwaXRhbHxlbnwwfDB8fHwxNzU5ODM5MzU4fDA&ixlib=rb-4.1.0&q=85",
     category: "Public Services",
     date: "December 30, 2024",
     readTime: "6 min read",
@@ -56,8 +73,10 @@ const blogPosts = [
   {
     id: 6,
     title: "Local Business Support Program",
-    excerpt: "New initiatives to boost local economy and support small businesses in our community.",
-    image: "https://images.unsplash.com/photo-1758346973678-0d027b70d14f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxsb2NhbCUyMGJ1c2luZXNzJTIwbWFya2V0JTIwY29tbWVyY2V8ZW58MHwwfHx8MTc1OTgzOTM1OHww&ixlib=rb-4.1.0&q=85",
+    excerpt:
+      "New initiatives to boost local economy and support small businesses in our community.",
+    image:
+      "https://images.unsplash.com/photo-1758346973678-0d027b70d14f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxsb2NhbCUyMGJ1c2luZXNzJTIwbWFya2V0JTIwY29tbWVyY2V8ZW58MHwwfHx8MTc1OTgzOTM1OHww&ixlib=rb-4.1.0&q=85",
     category: "Community Updates",
     date: "December 28, 2024",
     readTime: "5 min read",
@@ -75,11 +94,10 @@ export default function BlogGrid() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="heading-lg text-text-primary mb-4">
-            Latest Updates
-          </h2>
+          <h2 className="heading-lg text-text-primary mb-4">Latest Updates</h2>
           <p className="body-lg text-text-secondary max-w-2xl mx-auto">
-            Explore our recent posts and stay connected with what's happening in Santa Maria
+            Explore our recent posts and stay connected with what's happening in
+            Santa Maria
           </p>
         </motion.div>
 
@@ -88,57 +106,57 @@ export default function BlogGrid() {
             <Link key={post.id} href={`/announcement/${post.id}`}>
               <motion.article
                 className="group cursor-pointer h-full"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-            >
-              <div className="bg-surface rounded-2xl overflow-hidden shadow-md hover:shadow-2xl smooth-transition h-full flex flex-col border border-border">
-                <div className="relative h-48 overflow-hidden">
-                  <motion.img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.4 }}
-                  />
-                  <div className="absolute top-4 right-4">
-                    <span className="px-3 py-1 bg-surface/90 backdrop-blur-sm text-primary rounded-full text-xs font-semibold border border-border">
-                      {post.category}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-6 flex-1 flex flex-col bg-surface">
-                  <h3 className="heading-sm text-text-primary mb-3 group-hover:text-primary smooth-transition">
-                    {post.title}
-                  </h3>
-                  <p className="body-md text-text-secondary mb-4 flex-1">
-                    {post.excerpt}
-                  </p>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-text-secondary body-sm">
-                      <div className="flex items-center gap-1">
-                        <CalendarIcon className="w-4 h-4" />
-                        <span>{post.date}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <ClockIcon className="w-4 h-4" />
-                        <span>{post.readTime}</span>
-                      </div>
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+              >
+                <Card className="overflow-hidden hover:shadow-2xl smooth-transition h-full border-border">
+                  <div className="relative h-48 overflow-hidden">
+                    <motion.img
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.4 }}
+                    />
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-card/90 backdrop-blur-sm text-primary border-border">
+                        {post.category}
+                      </Badge>
                     </div>
-
-                    <motion.div
-                      className="text-primary"
-                      whileHover={{ x: 5 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ArrowRightIcon className="w-5 h-5" />
-                    </motion.div>
                   </div>
-                </div>
-              </div>
+
+                  <CardContent className="flex-1 flex flex-col pt-6">
+                    <h3 className="heading-sm text-foreground mb-3 group-hover:text-primary smooth-transition">
+                      {post.title}
+                    </h3>
+                    <p className="body-md text-muted-foreground mb-4 flex-1">
+                      {post.excerpt}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-border">
+                      <div className="flex items-center gap-3 text-muted-foreground body-sm">
+                        <div className="flex items-center gap-1">
+                          <CalendarIcon className="w-4 h-4" />
+                          <span>{post.date}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <ClockIcon className="w-4 h-4" />
+                          <span>{post.readTime}</span>
+                        </div>
+                      </div>
+
+                      <motion.div
+                        className="text-primary"
+                        whileHover={{ x: 5 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ArrowRightIcon className="w-5 h-5" />
+                      </motion.div>
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.article>
             </Link>
           ))}
@@ -151,9 +169,14 @@ export default function BlogGrid() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <button className="px-8 py-4 bg-primary text-white rounded-full font-semibold hover:bg-primary-dark smooth-transition shadow-lg hover:shadow-xl hover:scale-105">
-            Load More Posts
-          </button>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              size="lg"
+              className="px-8 rounded-full shadow-lg hover:shadow-xl"
+            >
+              Load More Posts
+            </Button>
+          </motion.div>
         </motion.div>
       </div>
     </section>
