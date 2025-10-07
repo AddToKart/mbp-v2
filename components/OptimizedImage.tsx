@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 
 interface OptimizedImageProps {
   src: string;
@@ -22,6 +22,9 @@ const optimizeImageUrl = (url: string, width: number = 800): string => {
   return `${url}${separator}w=${width}&q=75&auto=format`;
 };
 
+const DEFAULT_BLUR_DATA_URL =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzYwJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjxyZWN0IHdpZHRoPScxMDAnIGhlaWdodD0nNjAnIGZpbGw9JyNmNGY0ZjUnIC8+PC9zdmc+";
+
 export default function OptimizedImage({
   src,
   alt,
@@ -34,7 +37,8 @@ export default function OptimizedImage({
   const [isLoading, setIsLoading] = useState(true);
 
   const optimizedSrc = optimizeImageUrl(src);
-  const fallbackImage = "/placeholder-image.jpg"; // You can create a placeholder
+  const fallbackImage = "/placeholder-image.svg";
+  const blurDataURL = DEFAULT_BLUR_DATA_URL;
 
   const ImageComponent = (
     <>
@@ -53,7 +57,8 @@ export default function OptimizedImage({
         } ${className}`}
         sizes={sizes}
         priority={priority}
-        unoptimized={true}
+        placeholder="blur"
+        blurDataURL={blurDataURL}
         onLoad={() => setIsLoading(false)}
         onError={() => {
           setImageError(true);

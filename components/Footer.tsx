@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import {
   EnvelopeIcon,
   PhoneIcon,
@@ -21,9 +21,12 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h3 className="heading-sm mb-4 text-text-primary">Santa Maria Municipal</h3>
+            <h3 className="heading-sm mb-4 text-text-primary">
+              Santa Maria Municipal
+            </h3>
             <p className="body-md text-text-secondary">
-              Serving our community with transparency, dedication, and excellence since 1950.
+              Serving our community with transparency, dedication, and
+              excellence since 1950.
             </p>
           </motion.div>
 
@@ -34,11 +37,22 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <h4 className="font-semibold text-lg mb-4 text-text-primary">Quick Links</h4>
+            <h4 className="font-semibold text-lg mb-4 text-text-primary">
+              Quick Links
+            </h4>
             <ul className="space-y-2">
-              {["About Us", "Services", "Transparency Portal", "Contact", "FAQs"].map((link) => (
+              {[
+                "About Us",
+                "Services",
+                "Transparency Portal",
+                "Contact",
+                "FAQs",
+              ].map((link) => (
                 <li key={link}>
-                  <a href="#" className="text-text-secondary hover:text-primary smooth-transition body-md">
+                  <a
+                    href="#"
+                    className="text-text-secondary hover:text-primary smooth-transition body-md"
+                  >
                     {link}
                   </a>
                 </li>
@@ -53,11 +67,22 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h4 className="font-semibold text-lg mb-4 text-text-primary">Categories</h4>
+            <h4 className="font-semibold text-lg mb-4 text-text-primary">
+              Categories
+            </h4>
             <ul className="space-y-2">
-              {["Announcements", "Events", "Public Services", "Community", "Reports"].map((category) => (
+              {[
+                "Announcements",
+                "Events",
+                "Public Services",
+                "Community",
+                "Reports",
+              ].map((category) => (
                 <li key={category}>
-                  <a href="#" className="text-text-secondary hover:text-primary smooth-transition body-md">
+                  <a
+                    href="#"
+                    className="text-text-secondary hover:text-primary smooth-transition body-md"
+                  >
                     {category}
                   </a>
                 </li>
@@ -72,7 +97,9 @@ export default function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <h4 className="font-semibold text-lg mb-4 text-text-primary">Contact Us</h4>
+            <h4 className="font-semibold text-lg mb-4 text-text-primary">
+              Contact Us
+            </h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-text-secondary">
                 <MapPinIcon className="w-5 h-5 flex-shrink-0 mt-1" />
@@ -104,13 +131,22 @@ export default function Footer() {
             © {currentYear} Santa Maria Municipal. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-text-secondary hover:text-primary smooth-transition body-sm">
+            <a
+              href="#"
+              className="text-text-secondary hover:text-primary smooth-transition body-sm"
+            >
               Privacy Policy
             </a>
-            <a href="#" className="text-text-secondary hover:text-primary smooth-transition body-sm">
+            <a
+              href="#"
+              className="text-text-secondary hover:text-primary smooth-transition body-sm"
+            >
               Terms of Service
             </a>
-            <a href="#" className="text-text-secondary hover:text-primary smooth-transition body-sm">
+            <a
+              href="#"
+              className="text-text-secondary hover:text-primary smooth-transition body-sm"
+            >
               Accessibility
             </a>
           </div>

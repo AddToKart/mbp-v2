@@ -33,6 +33,10 @@ export function useDismissedAnnouncements() {
   };
 
   const dismissAnnouncement = (id: string) => {
+    if (dismissedIds.includes(id)) {
+      return;
+    }
+
     const newDismissedIds = [...dismissedIds, id];
     saveDismissedIds(newDismissedIds);
   };

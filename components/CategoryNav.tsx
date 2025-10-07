@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import {
   DocumentTextIcon,
   MegaphoneIcon,
@@ -14,7 +14,11 @@ const categories = [
   { name: "Transparency", icon: DocumentTextIcon, color: "bg-blue-500" },
   { name: "Announcements", icon: MegaphoneIcon, color: "bg-purple-500" },
   { name: "Events", icon: CalendarIcon, color: "bg-green-500" },
-  { name: "Public Services", icon: BuildingLibraryIcon, color: "bg-orange-500" },
+  {
+    name: "Public Services",
+    icon: BuildingLibraryIcon,
+    color: "bg-orange-500",
+  },
   { name: "Community", icon: UserGroupIcon, color: "bg-pink-500" },
   { name: "Reports", icon: ChartBarIcon, color: "bg-teal-500" },
 ];
@@ -53,7 +57,9 @@ export default function CategoryNav() {
                 whileTap={{ scale: 0.95 }}
               >
                 <div className="flex flex-col items-center gap-3 p-6 bg-surface rounded-2xl shadow-md hover:shadow-xl smooth-transition min-w-[140px] border border-border">
-                  <div className={`${category.color} p-4 rounded-xl group-hover:scale-110 smooth-transition`}>
+                  <div
+                    className={`${category.color} p-4 rounded-xl group-hover:scale-110 smooth-transition`}
+                  >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <span className="font-semibold text-text-primary body-sm whitespace-nowrap">

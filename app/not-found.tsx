@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Link from "next/link";
 import { HomeIcon } from "@heroicons/react/24/outline";
 
@@ -31,7 +31,8 @@ export default function NotFound() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          Sorry, we couldn't find the page you're looking for. It may have been moved or deleted.
+          Sorry, we couldn't find the page you're looking for. It may have been
+          moved or deleted.
         </motion.p>
 
         <motion.div

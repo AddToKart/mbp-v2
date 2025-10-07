@@ -1,7 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { UserGroupIcon, DocumentTextIcon, CalendarDaysIcon, BuildingLibraryIcon } from "@heroicons/react/24/outline";
+import { motion } from "@/lib/motion";
+import {
+  UserGroupIcon,
+  DocumentTextIcon,
+  CalendarDaysIcon,
+  BuildingLibraryIcon,
+} from "@heroicons/react/24/outline";
 
 const stats = [
   {
@@ -47,9 +52,7 @@ export default function StatsSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="heading-lg text-white mb-4">
-            Serving Our Community
-          </h2>
+          <h2 className="heading-lg text-white mb-4">Serving Our Community</h2>
           <p className="body-lg text-white/90 max-w-2xl mx-auto">
             Committed to transparency, excellence, and community engagement
           </p>

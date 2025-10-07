@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motion";
 import Link from "next/link";
 import {
   CalendarIcon,
@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import OptimizedImage from "@/components/OptimizedImage";
-import { useState, useEffect } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useDismissedAnnouncements } from "@/hooks/useDismissedAnnouncements";
 import SwipeableCard from "@/components/SwipeableCard";
 import Toast from "@/components/Toast";
@@ -114,35 +114,36 @@ const cardVariants = {
 };
 
 export default function BlogGrid() {
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Ensure component is mounted
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Swipe-to-dismiss functionality
-  const { isDismissed, dismissAnnouncement, undoDismiss, isLoaded } =
-    useDismissedAnnouncements();
   const [showToast, setShowToast] = useState(false);
   const [lastDismissedId, setLastDismissedId] = useState<string | null>(null);
 
-  const handleDismiss = (postId: string) => {
-    dismissAnnouncement(postId);
-    setLastDismissedId(postId);
-    setShowToast(true);
-  };
+  // Swipe-to-dismiss functionality
+  const { dismissedIds, dismissAnnouncement, undoDismiss, isLoaded } =
+    useDismissedAnnouncements();
 
-  const handleUndo = () => {
+  const handleDismiss = useCallback(
+    (postId: string) => {
+      dismissAnnouncement(postId);
+      setLastDismissedId(postId);
+      setShowToast(true);
+    },
+    [dismissAnnouncement]
+  );
+
+  const handleUndo = useCallback(() => {
     if (lastDismissedId) {
       undoDismiss(lastDismissedId);
       setLastDismissedId(null);
     }
-  };
+  }, [lastDismissedId, undoDismiss]);
 
   // Filter out dismissed announcements
-  const visiblePosts = allAnnouncements.filter(
-    (post) => !isDismissed(post.id.toString())
+  const visiblePosts = useMemo(
+    () =>
+      allAnnouncements.filter(
+        (post) => !dismissedIds.includes(post.id.toString())
+      ),
+    [dismissedIds]
   );
 
   // Don't render until localStorage is loaded to prevent flash

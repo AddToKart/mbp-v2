@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useMemo, useCallback } from "react";
+import { motion } from "@/lib/motion";
 import Link from "next/link";
 import OptimizedImage from "@/components/OptimizedImage";
 import {
@@ -45,17 +45,28 @@ const cardVariants = {
 
 export default function AllAnnouncementsGrid() {
   const [currentPage, setCurrentPage] = useState(1);
-  const allAnnouncements = getAllAnnouncements();
+  const allAnnouncements = useMemo(() => getAllAnnouncements(), []);
 
-  const totalPages = Math.ceil(allAnnouncements.length / POSTS_PER_PAGE);
+  const totalPages = useMemo(
+    () => Math.ceil(allAnnouncements.length / POSTS_PER_PAGE),
+    [allAnnouncements.length]
+  );
+
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
   const endIndex = startIndex + POSTS_PER_PAGE;
-  const currentPosts = allAnnouncements.slice(startIndex, endIndex);
 
-  const goToPage = (page: number) => {
+  const currentPosts = useMemo(
+    () => allAnnouncements.slice(startIndex, endIndex),
+    [allAnnouncements, startIndex, endIndex]
+  );
+
+  const goToPage = useCallback((page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
 
   const renderPageNumbers = () => {
     const pages = [];

@@ -3,9 +3,15 @@
 import { useScroll, useTransform, MotionValue } from "framer-motion";
 import { RefObject, useEffect, useState } from "react";
 
+type ScrollOffsetConfig = NonNullable<
+  Parameters<typeof useScroll>[0]
+>["offset"];
+
+const DEFAULT_OFFSET: ScrollOffsetConfig = ["start end", "end start"];
+
 interface ParallaxOptions {
   target: RefObject<HTMLElement>;
-  offset?: [string, string];
+  offset?: ScrollOffsetConfig;
   range?: [string | number, string | number];
 }
 
@@ -15,7 +21,7 @@ interface ParallaxOptions {
  */
 export function useParallax(
   options: ParallaxOptions
-): MotionValue<string> | undefined {
+): MotionValue<string | number> | undefined {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -30,7 +36,7 @@ export function useParallax(
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const scroll = useScroll({
       target: options.target,
-      offset: options.offset || ["start end", "end start"],
+      offset: options.offset || DEFAULT_OFFSET,
     });
     scrollYProgress = scroll.scrollYProgress;
   }

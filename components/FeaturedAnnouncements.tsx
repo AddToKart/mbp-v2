@@ -1,13 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Link from "next/link";
 import { CalendarIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { getAllAnnouncements } from "@/lib/announcements";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import OptimizedImage from "@/components/OptimizedImage";
-import { useEffect, useState } from "react";
 
 const announcements = getAllAnnouncements().slice(0, 3);
 
@@ -36,50 +35,7 @@ const cardVariants = {
   },
 };
 
-const displayAnnouncements = [
-  {
-    id: 1,
-    title: "Community Town Hall Meeting - January 2025",
-    excerpt:
-      "Join us for an important discussion on upcoming infrastructure projects and community development initiatives.",
-    image:
-      "https://images.unsplash.com/photo-1555069855-e580a9adbf43?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxjb21tdW5pdHklMjBtZWV0aW5nJTIwdG93biUyMGhhbGwlMjBwZW9wbGUlMjBkaXNjdXNzaW9ufGVufDB8MHx8fDE3NTk4MzkzNTR8MA&ixlib=rb-4.1.0&q=85",
-    category: "Community Updates",
-    date: "January 15, 2025",
-    readTime: "5 min read",
-  },
-  {
-    id: 2,
-    title: "New Public Transportation Routes Announced",
-    excerpt:
-      "Expanding our public transit system to better serve all neighborhoods with improved accessibility and frequency.",
-    image:
-      "https://images.unsplash.com/photo-1610932975716-df20896edfe5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHxwdWJsaWMlMjBzZXJ2aWNlJTIwaW5mcmFzdHJ1Y3R1cmUlMjBjb21tdW5pdHklMjBkZXZlbG9wbWVudHxlbnwwfDB8fHwxNzU5ODM5MzU0fDA&ixlib=rb-4.1.0&q=85",
-    category: "Public Services",
-    date: "January 12, 2025",
-    readTime: "4 min read",
-  },
-  {
-    id: 3,
-    title: "Annual Cultural Festival Returns This Spring",
-    excerpt:
-      "Celebrate our diverse community with music, food, and cultural performances from around the world.",
-    image:
-      "https://images.unsplash.com/photo-1758388536193-affe81d27c9a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHxsb2NhbCUyMGV2ZW50JTIwZmVzdGl2YWwlMjBjb21tdW5pdHklMjBjZWxlYnJhdGlvbnxlbnwwfDB8fHwxNzU5ODM5MzU0fDA&ixlib=rb-4.1.0&q=85",
-    category: "Events",
-    date: "January 10, 2025",
-    readTime: "3 min read",
-  },
-];
-
 export default function FeaturedAnnouncements() {
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Ensure component is mounted
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card">
       <div className="max-w-7xl mx-auto">
@@ -105,7 +61,7 @@ export default function FeaturedAnnouncements() {
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
         >
-          {displayAnnouncements.map((announcement, index) => (
+          {announcements.map((announcement, index) => (
             <Link
               key={announcement.id}
               href={`/announcement/${announcement.id}`}

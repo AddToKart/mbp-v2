@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, PanInfo, useMotionValue, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "@/lib/motion";
+import type { PanInfo } from "framer-motion";
 import { useState } from "react";
 
 interface SwipeableCardProps {
