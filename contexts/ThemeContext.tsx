@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "light" | "dark";
+type Theme = "light" | "dark" | "glass";
 
 interface ThemeContextType {
   theme: Theme;
@@ -19,14 +19,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
     // Check localStorage and system preference
     const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      .matches
+      ? "dark"
+      : "light";
     const initialTheme = savedTheme || systemTheme;
     setTheme(initialTheme);
     document.documentElement.setAttribute("data-theme", initialTheme);
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
+    const themes: Theme[] = ["light", "dark", "glass"];
+    const currentIndex = themes.indexOf(theme);
+    const newTheme = themes[(currentIndex + 1) % themes.length];
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
     document.documentElement.setAttribute("data-theme", newTheme);

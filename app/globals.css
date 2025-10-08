@@ -76,6 +76,44 @@
   --shadow: rgba(0, 0, 0, 0.5);
 }
 
+[data-theme="glass"] {
+  /* Liquid Glass Theme - Ultra Transparent iOS 26 Style */
+  --primary: #0066ff;
+  --primary-dark: #0052cc;
+  --primary-light: #3d8aff;
+  --primary-foreground: #ffffff;
+  --secondary: #00d4aa;
+  --secondary-foreground: #ffffff;
+  --accent: #ff3b30;
+  --accent-foreground: #ffffff;
+  --destructive: #ff453a;
+  --destructive-foreground: #ffffff;
+
+  /* Ultra transparent liquid glass backgrounds */
+  --background: transparent;
+  --foreground: #0a0a0a;
+  --surface: rgba(255, 255, 255, 0.08);
+  --card: rgba(255, 255, 255, 0.05);
+  --card-foreground: #0a0a0a;
+
+  --muted: rgba(255, 255, 255, 0.12);
+  --muted-foreground: #2d3748;
+  --popover: rgba(255, 255, 255, 0.1);
+  --popover-foreground: #0a0a0a;
+
+  --border: rgba(255, 255, 255, 0.2);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #0066ff;
+
+  --text-primary: #0a0a0a;
+  --text-secondary: #2d3748;
+
+  /* Maximum transparency glass effect */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --shadow: rgba(0, 0, 0, 0.08);
+}
+
 @theme inline {
   --color-primary: var(--primary);
   --color-primary-dark: var(--primary-dark);
@@ -217,6 +255,126 @@ body {
 
 .animate-shimmer {
   animation: shimmer 2s infinite linear;
+}
+
+/* ===== LIQUID GLASS THEME ENHANCEMENTS ===== */
+[data-theme="glass"] {
+  background-image: radial-gradient(
+      circle at 10% 20%,
+      rgba(99, 102, 241, 0.4) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(59, 130, 246, 0.35) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(236, 72, 153, 0.3) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 10%,
+      rgba(16, 185, 129, 0.35) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 20% 80%,
+      rgba(245, 158, 11, 0.3) 0%,
+      transparent 50%
+    );
+}
+
+[data-theme="glass"] html {
+  background: linear-gradient(
+    135deg,
+    #667eea 0%,
+    #764ba2 25%,
+    #f093fb 50%,
+    #4facfe 75%,
+    #00f2fe 100%
+  );
+  background-attachment: fixed;
+}
+
+[data-theme="glass"] body {
+  background: transparent !important;
+  backdrop-filter: blur(100px) saturate(200%);
+  -webkit-backdrop-filter: blur(100px) saturate(200%);
+}
+
+[data-theme="glass"] [class*="bg-card"],
+[data-theme="glass"] [class*="card"],
+[data-theme="glass"] section,
+[data-theme="glass"] nav,
+[data-theme="glass"] header,
+[data-theme="glass"] footer,
+[data-theme="glass"] article,
+[data-theme="glass"] main {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(60px) saturate(180%) brightness(120%);
+  -webkit-backdrop-filter: blur(60px) saturate(180%) brightness(120%);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15), 0 2px 12px 0 rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.4);
+  border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+[data-theme="glass"] button,
+[data-theme="glass"] [role="button"],
+[data-theme="glass"] input,
+[data-theme="glass"] textarea {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(40px) saturate(170%);
+  -webkit-backdrop-filter: blur(40px) saturate(170%);
+  border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  color: #0a0a0a !important;
+  font-weight: 600;
+}
+
+[data-theme="glass"] button svg,
+[data-theme="glass"] svg {
+  color: #0a0a0a !important;
+  stroke: #0a0a0a !important;
+  opacity: 1 !important;
+}
+
+[data-theme="glass"] button:hover,
+[data-theme="glass"] [role="button"]:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 28px 0 rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1);
+  transform: translateY(-2px) scale(1.02);
+}
+
+[data-theme="glass"] h1,
+[data-theme="glass"] h2,
+[data-theme="glass"] h3,
+[data-theme="glass"] h4,
+[data-theme="glass"] h5,
+[data-theme="glass"] h6 {
+  color: #0a0a0a !important;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9),
+    0 0 20px rgba(255, 255, 255, 0.5);
+  font-weight: 800;
+}
+
+[data-theme="glass"] p,
+[data-theme="glass"] span,
+[data-theme="glass"] a,
+[data-theme="glass"] li,
+[data-theme="glass"] label {
+  color: #0a0a0a !important;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="glass"] img {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Scrollbar styling */
