@@ -6,11 +6,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from "./ThemeToggle";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
 
   // Check if we're on homepage to determine if navbar should be transparent
   const isHomePage = pathname === "/";
@@ -47,8 +50,10 @@ export default function Navbar() {
     <motion.nav
       className={`fixed top-0 left-0 right-0 z-50 theme-transition ${
         isScrolled || !isHomePage
-          ? "bg-card/95 backdrop-blur-md shadow-lg border-b border-border/50"
-          : "bg-transparent"
+          ? "bg-card/95 backdrop-blur-md shadow-lg border-b border-border/50 text-text-primary"
+          : isDarkMode
+          ? "bg-transparent text-white"
+          : "bg-transparent text-slate-900"
       }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -68,7 +73,11 @@ export default function Navbar() {
               <div className="hidden sm:block">
                 <h1
                   className={`font-bold text-lg ${
-                    isScrolled || !isHomePage ? "text-foreground" : "text-white"
+                    isScrolled || !isHomePage
+                      ? "text-text-primary"
+                      : isDarkMode
+                      ? "text-white"
+                      : "text-slate-900"
                   }`}
                 >
                   Santa Maria
@@ -77,7 +86,9 @@ export default function Navbar() {
                   className={`text-xs ${
                     isScrolled || !isHomePage
                       ? "text-muted-foreground"
-                      : "text-white/90"
+                      : isDarkMode
+                      ? "text-white/80"
+                      : "text-slate-600"
                   }`}
                 >
                   Municipal Government
@@ -92,7 +103,11 @@ export default function Navbar() {
               <Link key={link.name} href={link.href}>
                 <motion.span
                   className={`hover:text-primary smooth-transition font-medium cursor-pointer ${
-                    isScrolled || !isHomePage ? "text-foreground" : "text-white"
+                    isScrolled || !isHomePage
+                      ? "text-text-primary"
+                      : isDarkMode
+                      ? "text-white/90"
+                      : "text-slate-900"
                   }`}
                   whileHover={{ y: -2 }}
                 >
@@ -108,7 +123,11 @@ export default function Navbar() {
             <ThemeToggle isTransparent={!isScrolled && isHomePage} />
             <button
               className={`p-2 ${
-                isScrolled || !isHomePage ? "text-foreground" : "text-white"
+                isScrolled || !isHomePage
+                  ? "text-text-primary"
+                  : isDarkMode
+                  ? "text-white"
+                  : "text-slate-900"
               }`}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
