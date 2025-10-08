@@ -17,15 +17,30 @@ export default function ThemeToggle({
 }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const handleToggle = () => {
+    if (isAnimating) return;
+
+    setIsAnimating(true);
+
+    // Trigger theme change immediately for instant response
+    toggleTheme();
+
+    // Reset animation lock
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 300);
+  };
+
   if (!mounted) {
     return (
       <div
-        className={`size-9 rounded-full bg-card border border-border theme-transition flex items-center justify-center ${className}`}
+        className={`size-9 rounded-full bg-card border border-border flex items-center justify-center ${className}`}
       />
     );
   }
@@ -33,7 +48,7 @@ export default function ThemeToggle({
   return (
     <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
       <Button
-        onClick={toggleTheme}
+        onClick={handleToggle}
         variant="outline"
         size="icon"
         className={`rounded-full hover:bg-primary/10 hover:border-primary ${
@@ -42,6 +57,7 @@ export default function ThemeToggle({
             : ""
         } ${className}`}
         aria-label="Toggle theme"
+        disabled={isAnimating}
       >
         <motion.div
           className="flex items-center justify-center"
