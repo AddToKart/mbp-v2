@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import { motion } from "@/lib/motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -39,7 +40,7 @@ const settingsLinks: SidebarLink[] = [
   { name: "Settings", href: "/admin/settings", icon: CogIcon },
 ];
 
-export default function AdminSidebar({
+function AdminSidebar({
   isMobileOpen,
   onClose,
 }: {
@@ -49,12 +50,12 @@ export default function AdminSidebar({
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.removeItem("user");
     router.push("/");
-  };
+  }, [router]);
 
-  const NavLink = ({ link }: { link: SidebarLink }) => {
+  const NavLink = memo(({ link }: { link: SidebarLink }) => {
     const isActive = pathname === link.href;
     const Icon = link.icon;
 
@@ -90,7 +91,7 @@ export default function AdminSidebar({
         </motion.div>
       </Link>
     );
-  };
+  });
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-card border-r border-border">
@@ -218,3 +219,5 @@ export default function AdminSidebar({
     </aside>
   );
 }
+
+export default memo(AdminSidebar);

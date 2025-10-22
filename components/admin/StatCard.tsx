@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "@/lib/motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ interface StatCardProps {
   trend?: "up" | "down";
 }
 
-export default function StatCard({
+function StatCard({
   title,
   value,
   change,
@@ -82,3 +83,5 @@ export default function StatCard({
     </motion.div>
   );
 }
+
+export default memo(StatCard);

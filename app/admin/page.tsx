@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "@/lib/motion";
 import StatCard from "@/components/admin/StatCard";
 import {
@@ -24,100 +25,115 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 
 export default function AdminDashboard() {
-  // Mock data
-  const stats = [
-    {
-      title: "Total Posts",
-      value: "124",
-      change: 12.5,
-      icon: DocumentTextIcon,
-      iconColor: "bg-blue-500",
-      trend: "up" as const,
-    },
-    {
-      title: "Total Views",
-      value: "45.2K",
-      change: 8.3,
-      icon: EyeIcon,
-      iconColor: "bg-green-500",
-      trend: "up" as const,
-    },
-    {
-      title: "Active Users",
-      value: "2,847",
-      change: 15.2,
-      icon: UserGroupIcon,
-      iconColor: "bg-purple-500",
-      trend: "up" as const,
-    },
-    {
-      title: "Comments",
-      value: "892",
-      change: -3.1,
-      icon: ChatBubbleLeftRightIcon,
-      iconColor: "bg-orange-500",
-      trend: "down" as const,
-    },
-  ];
+  // Mock data - memoized to prevent recreation on every render
+  const stats = useMemo(
+    () => [
+      {
+        title: "Total Posts",
+        value: "124",
+        change: 12.5,
+        icon: DocumentTextIcon,
+        iconColor: "bg-blue-500",
+        trend: "up" as const,
+      },
+      {
+        title: "Total Views",
+        value: "45.2K",
+        change: 8.3,
+        icon: EyeIcon,
+        iconColor: "bg-green-500",
+        trend: "up" as const,
+      },
+      {
+        title: "Active Users",
+        value: "2,847",
+        change: 15.2,
+        icon: UserGroupIcon,
+        iconColor: "bg-purple-500",
+        trend: "up" as const,
+      },
+      {
+        title: "Comments",
+        value: "892",
+        change: -3.1,
+        icon: ChatBubbleLeftRightIcon,
+        iconColor: "bg-orange-500",
+        trend: "down" as const,
+      },
+    ],
+    []
+  );
 
-  const recentPosts = [
-    {
-      id: 1,
-      title: "New Community Health Program Launched",
-      status: "published",
-      views: 1234,
-      date: "2 hours ago",
-      category: "Announcements",
-    },
-    {
-      id: 2,
-      title: "Budget Report Q4 2024",
-      status: "draft",
-      views: 0,
-      date: "5 hours ago",
-      category: "Transparency",
-    },
-    {
-      id: 3,
-      title: "Upcoming Town Hall Meeting",
-      status: "published",
-      views: 856,
-      date: "1 day ago",
-      category: "Events",
-    },
-    {
-      id: 4,
-      title: "Road Maintenance Schedule Update",
-      status: "published",
-      views: 2341,
-      date: "2 days ago",
-      category: "Public Services",
-    },
-  ];
+  const recentPosts = useMemo(
+    () => [
+      {
+        id: 1,
+        title: "New Community Health Program Launched",
+        status: "published",
+        views: 1234,
+        date: "2 hours ago",
+        category: "Announcements",
+      },
+      {
+        id: 2,
+        title: "Budget Report Q4 2024",
+        status: "draft",
+        views: 0,
+        date: "5 hours ago",
+        category: "Transparency",
+      },
+      {
+        id: 3,
+        title: "Upcoming Town Hall Meeting",
+        status: "published",
+        views: 856,
+        date: "1 day ago",
+        category: "Events",
+      },
+      {
+        id: 4,
+        title: "Road Maintenance Schedule Update",
+        status: "published",
+        views: 2341,
+        date: "2 days ago",
+        category: "Public Services",
+      },
+    ],
+    []
+  );
 
-  const activities = [
-    {
-      action: "New post published",
-      user: "Admin User",
-      time: "10 minutes ago",
-    },
-    { action: "Comment approved", user: "John Doe", time: "1 hour ago" },
-    { action: "User registered", user: "Jane Smith", time: "2 hours ago" },
-    { action: "Post edited", user: "Admin User", time: "3 hours ago" },
-    { action: "Category created", user: "Admin User", time: "5 hours ago" },
-  ];
+  const activities = useMemo(
+    () => [
+      {
+        action: "New post published",
+        user: "Admin User",
+        time: "10 minutes ago",
+      },
+      { action: "Comment approved", user: "John Doe", time: "1 hour ago" },
+      { action: "User registered", user: "Jane Smith", time: "2 hours ago" },
+      { action: "Post edited", user: "Admin User", time: "3 hours ago" },
+      { action: "Category created", user: "Admin User", time: "5 hours ago" },
+    ],
+    []
+  );
 
-  // Mock chart data
-  const viewsData = [
-    { month: "Jan", views: 4000 },
-    { month: "Feb", views: 3000 },
-    { month: "Mar", views: 5000 },
-    { month: "Apr", views: 4500 },
-    { month: "May", views: 6000 },
-    { month: "Jun", views: 5500 },
-  ];
+  // Mock chart data - memoized
+  const viewsData = useMemo(
+    () => [
+      { month: "Jan", views: 4000 },
+      { month: "Feb", views: 3000 },
+      { month: "Mar", views: 5000 },
+      { month: "Apr", views: 4500 },
+      { month: "May", views: 6000 },
+      { month: "Jun", views: 5500 },
+    ],
+    []
+  );
 
-  const maxViews = Math.max(...viewsData.map((d) => d.views));
+  const maxViews = useMemo(
+    () => Math.max(...viewsData.map((d) => d.views)),
+    [viewsData]
+  );
 
   return (
     <div className="space-y-8">
