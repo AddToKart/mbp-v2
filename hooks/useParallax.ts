@@ -22,30 +22,19 @@ interface ParallaxOptions {
 export function useParallax(
   options: ParallaxOptions
 ): MotionValue<string | number> | undefined {
+  const { target, offset = DEFAULT_OFFSET, range = ["0%", "-10%"] } = options;
   const [isMounted, setIsMounted] = useState(false);
+
+  const scroll = useScroll({
+    target,
+    offset,
+  });
+
+  const y = useTransform(scroll.scrollYProgress, [0, 1], range);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Only create scroll progress on client
-  let scrollYProgress: MotionValue<number> | undefined;
-
-  if (isMounted) {
-    // This will only run on client after mount
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const scroll = useScroll({
-      target: options.target,
-      offset: options.offset || DEFAULT_OFFSET,
-    });
-    scrollYProgress = scroll.scrollYProgress;
-  }
-
-  // Transform scroll to parallax value
-  const y = scrollYProgress
-    ? // eslint-disable-next-line react-hooks/rules-of-hooks
-      useTransform(scrollYProgress, [0, 1], options.range || ["0%", "-10%"])
-    : undefined;
-
-  return y;
+  return isMounted ? y : undefined;
 }

@@ -128,7 +128,10 @@ export default function StatsSection() {
   const percentChange = (absoluteChange / previousYear.value) * 100;
 
   return (
-    <section className="relative overflow-hidden py-20 sm:py-24 lg:py-28 bg-gradient-to-b from-background via-muted/20 to-background">
+    <section
+      id="transparency"
+      className="relative overflow-hidden py-20 sm:py-24 lg:py-28 bg-gradient-to-b from-background via-muted/20 to-background"
+    >
       {/* Decorative background elements */}
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none"

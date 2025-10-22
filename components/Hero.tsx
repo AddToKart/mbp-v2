@@ -108,11 +108,14 @@ export default function Hero() {
                 whileTap={{ scale: 0.96 }}
               >
                 <Button
+                  asChild
                   variant="outline"
                   size="lg"
                   className="rounded-full px-8 py-3 font-semibold border-border/70 text-foreground hover:bg-primary/10 hover:text-primary"
                 >
-                  Transparency Portal
+                  <Link href="/announcements#transparency" scroll>
+                    Transparency Portal
+                  </Link>
                 </Button>
               </motion.div>
             </motion.div>
