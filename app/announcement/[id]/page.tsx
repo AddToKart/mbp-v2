@@ -9,10 +9,10 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export function generateMetadata({ params }: { params: { id: string } }) {
+  const { id } = params;
   const announcement = getAnnouncementById(id);
-  
+
   if (!announcement) {
     return {
       title: "Announcement Not Found",
@@ -25,8 +25,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function AnnouncementPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function AnnouncementPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const { id } = params;
   const announcement = getAnnouncementById(id);
 
   if (!announcement) {
