@@ -2,6 +2,7 @@
 
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Navbar from "@/components/Navbar";
+import MariBot from "@/components/MariBot";
 import {
   LazyMotion,
   motion,
@@ -48,6 +49,7 @@ export default function ClientLayout({
         >
           {children}
         </motion.div>
+        <MariBot />
       </LazyMotion>
     </ThemeProvider>
   );
