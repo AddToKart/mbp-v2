@@ -21,6 +21,9 @@ export default function ClientLayout({
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const prefersReducedMotion = useReducedMotion();
 
+  // Check if we're on an admin route
+  const isAdminRoute = pathname.startsWith("/admin");
+
   useEffect(() => {
     // After initial render, enable animations for subsequent navigations
     setIsInitialLoad(false);
@@ -39,7 +42,8 @@ export default function ClientLayout({
   return (
     <ThemeProvider>
       <LazyMotion features={loadMotionFeatures} strict>
-        <Navbar />
+        {/* Only show Navbar on non-admin routes */}
+        {!isAdminRoute && <Navbar />}
         <motion.div
           key={pathname}
           initial={initialMotion}
@@ -49,7 +53,8 @@ export default function ClientLayout({
         >
           {children}
         </motion.div>
-        <MariBot />
+        {/* Only show MariBot on non-admin routes */}
+        {!isAdminRoute && <MariBot />}
       </LazyMotion>
     </ThemeProvider>
   );

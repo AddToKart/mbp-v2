@@ -115,11 +115,40 @@ export default function Navbar() {
                 </motion.span>
               </Link>
             ))}
+            <Link href="/login">
+              <motion.button
+                className={`px-4 py-2 rounded-lg font-medium transition-all border ${
+                  isScrolled || !isHomePage
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 border-transparent"
+                    : isDarkMode
+                    ? "bg-white/10 text-white border-white/20 hover:bg-white/20"
+                    : "bg-slate-900/10 text-slate-900 border-slate-900/20 hover:bg-slate-900/20"
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Login
+              </motion.button>
+            </Link>
             <ThemeToggle isTransparent={!isScrolled && isHomePage} />
           </div>
 
-          {/* Mobile Menu Button and Theme Toggle */}
-          <div className="md:hidden flex items-center gap-3">
+          {/* Mobile Menu Button, Login, and Theme Toggle */}
+          <div className="md:hidden flex items-center gap-2">
+            <Link href="/login">
+              <motion.button
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all border ${
+                  isScrolled || !isHomePage
+                    ? "bg-primary text-primary-foreground border-transparent"
+                    : isDarkMode
+                    ? "bg-white/10 text-white border-white/20"
+                    : "bg-slate-900/10 text-slate-900 border-slate-900/20"
+                }`}
+                whileTap={{ scale: 0.95 }}
+              >
+                Login
+              </motion.button>
+            </Link>
             <ThemeToggle isTransparent={!isScrolled && isHomePage} />
             <button
               className={`p-2 ${
