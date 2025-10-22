@@ -9,6 +9,10 @@ import {
   SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface Message {
@@ -206,7 +210,7 @@ Please provide helpful, concise responses (2-3 sentences maximum) in a friendly 
             >
               <Button
                 size="icon-lg"
-                className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary-dark transition-all"
+                className="h-16 w-16 rounded-full shadow-2xl bg-primary hover:bg-primary-dark transition-all relative group"
                 onClick={() => setIsOpen(true)}
                 aria-label="Open MariBot chat"
               >
@@ -218,8 +222,10 @@ Please provide helpful, concise responses (2-3 sentences maximum) in a friendly 
                     ease: "easeInOut",
                   }}
                 >
-                  <ChatBubbleLeftRightIcon className="w-6 h-6" />
+                  <ChatBubbleLeftRightIcon className="w-7 h-7" />
                 </motion.div>
+                {/* Pulse effect */}
+                <span className="absolute inset-0 rounded-full bg-primary opacity-20 animate-ping" />
               </Button>
             </motion.div>
           )}
@@ -230,33 +236,51 @@ Please provide helpful, concise responses (2-3 sentences maximum) in a friendly 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-3rem)]"
+            className="fixed bottom-6 right-6 z-50 w-[420px] max-w-[calc(100vw-3rem)]"
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[600px] max-h-[calc(100vh-6rem)]">
-              {/* Header */}
-              <div className="bg-primary text-primary-foreground p-4 flex items-center justify-between">
+            <Card className="overflow-hidden flex flex-col h-[650px] max-h-[calc(100vh-6rem)] shadow-2xl border-2 p-0 gap-0">
+              {/* Header with gradient */}
+              <div className="bg-gradient-to-r from-primary via-primary to-primary-dark text-primary-foreground p-5 flex items-center justify-between border-b border-primary-foreground/10">
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                  <motion.div
+                    className="relative"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="w-12 h-12 rounded-full bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/30">
                       <SparklesIcon className="w-6 h-6" />
                     </div>
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-secondary rounded-full border-2 border-primary" />
-                  </div>
+                    <motion.div
+                      className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-secondary rounded-full border-2 border-primary"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                  </motion.div>
                   <div>
-                    <h3 className="font-bold text-lg">MariBot</h3>
-                    <p className="text-xs text-primary-foreground/80">
-                      Your Municipal Assistant
-                    </p>
+                    <h3 className="font-bold text-lg tracking-tight">
+                      MariBot
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] px-1.5 py-0 h-4 bg-secondary/20 text-primary-foreground border-primary-foreground/20"
+                      >
+                        AI Assistant
+                      </Badge>
+                      <span className="text-xs text-primary-foreground/70">
+                        • Online
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <Button
                   size="icon-sm"
                   variant="ghost"
-                  className="text-primary-foreground hover:bg-primary-foreground/20"
+                  className="text-primary-foreground hover:bg-primary-foreground/20 rounded-lg"
                   onClick={() => setIsOpen(false)}
                   aria-label="Close chat"
                 >
@@ -264,27 +288,38 @@ Please provide helpful, concise responses (2-3 sentences maximum) in a friendly 
                 </Button>
               </div>
 
-              {/* Messages Container */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20">
-                {messages.map((message) => (
+              {/* Messages Container with custom scrollbar */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-muted/30 backdrop-blur-sm scroll-smooth [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-muted-foreground/30">
+                {messages.map((message, index) => (
                   <motion.div
                     key={message.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                      delay: index === messages.length - 1 ? 0.1 : 0,
+                    }}
                     className={cn(
-                      "flex",
+                      "flex gap-2",
                       message.sender === "user"
                         ? "justify-end"
                         : "justify-start"
                     )}
                   >
-                    <div
+                    {message.sender === "bot" && (
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                        <SparklesIcon className="w-4 h-4 text-primary" />
+                      </div>
+                    )}
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
                       className={cn(
-                        "max-w-[80%] rounded-2xl px-4 py-2.5 shadow-sm",
+                        "max-w-[75%] rounded-2xl px-4 py-3 shadow-md backdrop-blur-sm transition-all",
                         message.sender === "user"
-                          ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : "bg-card border border-border rounded-bl-sm"
+                          ? "bg-primary text-primary-foreground rounded-br-md border border-primary-dark/20"
+                          : "bg-card text-card-foreground border-2 border-border rounded-bl-md"
                       )}
                     >
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -292,9 +327,9 @@ Please provide helpful, concise responses (2-3 sentences maximum) in a friendly 
                       </p>
                       <p
                         className={cn(
-                          "text-xs mt-1",
+                          "text-xs mt-1.5 font-medium",
                           message.sender === "user"
-                            ? "text-primary-foreground/70"
+                            ? "text-primary-foreground/60"
                             : "text-muted-foreground"
                         )}
                       >
@@ -303,46 +338,38 @@ Please provide helpful, concise responses (2-3 sentences maximum) in a friendly 
                           minute: "2-digit",
                         })}
                       </p>
-                    </div>
+                    </motion.div>
                   </motion.div>
                 ))}
 
-                {/* Typing Indicator */}
+                {/* Enhanced Typing Indicator */}
                 {isTyping && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex justify-start"
+                    className="flex gap-2 justify-start"
                   >
-                    <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
-                      <div className="flex gap-1">
-                        <motion.div
-                          className="w-2 h-2 bg-muted-foreground rounded-full"
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{
-                            duration: 0.6,
-                            repeat: Infinity,
-                            delay: 0,
-                          }}
-                        />
-                        <motion.div
-                          className="w-2 h-2 bg-muted-foreground rounded-full"
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{
-                            duration: 0.6,
-                            repeat: Infinity,
-                            delay: 0.2,
-                          }}
-                        />
-                        <motion.div
-                          className="w-2 h-2 bg-muted-foreground rounded-full"
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{
-                            duration: 0.6,
-                            repeat: Infinity,
-                            delay: 0.4,
-                          }}
-                        />
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                      <SparklesIcon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="bg-card border-2 border-border rounded-2xl rounded-bl-md px-5 py-4 shadow-md backdrop-blur-sm">
+                      <div className="flex gap-1.5">
+                        {[0, 0.15, 0.3].map((delay, i) => (
+                          <motion.div
+                            key={i}
+                            className="w-2.5 h-2.5 bg-primary rounded-full"
+                            animate={{
+                              scale: [1, 1.3, 1],
+                              opacity: [0.5, 1, 0.5],
+                            }}
+                            transition={{
+                              duration: 0.8,
+                              repeat: Infinity,
+                              delay: delay,
+                              ease: "easeInOut",
+                            }}
+                          />
+                        ))}
                       </div>
                     </div>
                   </motion.div>
@@ -351,34 +378,52 @@ Please provide helpful, concise responses (2-3 sentences maximum) in a friendly 
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input Area */}
-              <div className="p-4 border-t border-border bg-background">
-                <div className="flex gap-2">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Ask me anything..."
-                    className="flex-1 px-4 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                    disabled={isTyping}
-                  />
+              <Separator />
+
+              {/* Enhanced Input Area */}
+              <div className="p-4 bg-background/50 backdrop-blur-sm">
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1 relative">
+                    <Input
+                      ref={inputRef}
+                      type="text"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Type your message..."
+                      disabled={isTyping}
+                      className="pr-12 h-11 rounded-xl border-2 focus-visible:ring-2 transition-all"
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] h-5 px-1.5 bg-muted/50"
+                      >
+                        Enter
+                      </Badge>
+                    </div>
+                  </div>
                   <Button
                     size="icon"
                     onClick={handleSendMessage}
                     disabled={!inputValue.trim() || isTyping}
-                    className="rounded-lg"
+                    className="h-11 w-11 rounded-xl shadow-lg hover:shadow-xl transition-all"
                     aria-label="Send message"
                   >
                     <PaperAirplaneIcon className="w-5 h-5" />
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Powered by Gemini AI
-                </p>
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <SparklesIcon className="w-3 h-3 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground font-medium">
+                    Powered by{" "}
+                    <span className="text-primary font-semibold">
+                      Gemini 2.0 Flash
+                    </span>
+                  </p>
+                </div>
               </div>
-            </div>
+            </Card>
           </motion.div>
         )}
       </AnimatePresence>
