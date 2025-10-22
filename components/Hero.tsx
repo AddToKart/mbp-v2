@@ -8,7 +8,6 @@ import bgHall from "@/images/bg_hall.jpg";
 
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
-
   return (
     <section className="relative isolate overflow-hidden bg-background">
       <div className="relative pt-32 pb-28 sm:pt-40 sm:pb-32">

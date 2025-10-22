@@ -20,7 +20,6 @@ const optimizeImageUrl = (
 ): string | StaticImageData => {
   // If it's a StaticImageData (imported image), return as is
   if (typeof url !== "string") return url;
-
   if (!url.includes("unsplash.com")) return url;
 
   // Add Unsplash URL parameters for optimization
