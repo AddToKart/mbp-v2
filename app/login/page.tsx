@@ -54,8 +54,23 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login(formData.email, formData.password);
-      router.replace("/admin");
+      const user = await login(formData.email, formData.password);
+
+      // Role-based redirection
+      if (user?.role === "admin") {
+        router.replace("/admin");
+      } else if (user?.role === "validator") {
+        router.replace("/validator/dashboard");
+      } else if (user?.role === "citizen") {
+        if (user.verificationStatus === "approved") {
+          router.replace("/");
+        } else {
+          router.replace("/status");
+        }
+      } else {
+        router.replace("/");
+      }
+
     } catch (loginError) {
       const message =
         loginError instanceof Error
@@ -226,9 +241,8 @@ export default function LoginPage() {
                         onChange={(e) =>
                           handleInputChange("email", e.target.value)
                         }
-                        className={`pl-10 h-12 ${
-                          errors.email ? "border-destructive" : ""
-                        }`}
+                        className={`pl-10 h-12 ${errors.email ? "border-destructive" : ""
+                          }`}
                       />
                     </div>
                     {errors.email && (
@@ -257,9 +271,8 @@ export default function LoginPage() {
                         onChange={(e) =>
                           handleInputChange("password", e.target.value)
                         }
-                        className={`pl-10 pr-12 h-12 ${
-                          errors.password ? "border-destructive" : ""
-                        }`}
+                        className={`pl-10 pr-12 h-12 ${errors.password ? "border-destructive" : ""
+                          }`}
                       />
                       <button
                         type="button"
@@ -354,20 +367,30 @@ export default function LoginPage() {
                     </div>
                     <div className="p-3 rounded-lg bg-muted/50 border border-border">
                       <p className="text-xs font-semibold text-foreground mb-1">
-                        Citizen
+                        Validator
                       </p>
                       <p className="text-xs text-muted-foreground font-mono">
-                        user@citizen
+                        validator@admin.com
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Back to Home */}
-                <div className="text-center">
+                {/* Back to Home & Register */}
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Don't have an account?{" "}
+                    <Link
+                      href="/register"
+                      className="font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Register here
+                    </Link>
+                  </p>
+
                   <Link
                     href="/"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-block text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     ← Back to Homepage
                   </Link>

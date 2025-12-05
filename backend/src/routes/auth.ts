@@ -6,8 +6,8 @@ import { env } from "../env.js";
 import type { AuthenticatedUser } from "../plugins/authenticate.js";
 
 const isProduction = env.NODE_ENV === "production";
-const ACCESS_TOKEN_EXPIRY = "15m"; // Short-lived access token
-const COOKIE_MAX_AGE = 15 * 60 * 1000; // 15 minutes in milliseconds
+const ACCESS_TOKEN_EXPIRY = "1h"; // 1 hour access token
+const COOKIE_MAX_AGE = 60 * 60 * 1000; // 1 hour in milliseconds
 const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 // Cookie configuration for security
@@ -38,15 +38,15 @@ export async function authRoutes(fastify: FastifyInstance) {
 
       const { email, password } = parsed.data;
 
-      const admin = userService.getUserWithPasswordByEmail(email.toLowerCase());
+      const user = userService.getUserWithPasswordByEmail(email.toLowerCase());
 
-      if (!admin) {
+      if (!user) {
         return reply.unauthorized("Invalid credentials");
       }
 
       const passwordMatch = userService.verifyPassword(
         password,
-        admin.passwordHash
+        user.passwordHash
       );
 
       if (!passwordMatch) {
@@ -56,10 +56,11 @@ export async function authRoutes(fastify: FastifyInstance) {
       // Generate short-lived access token
       const accessToken = fastify.jwt.sign(
         {
-          id: admin.id,
-          email: admin.email,
-          name: admin.name,
-          role: "admin" as const,
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          verificationStatus: user.verificationStatus,
         },
         { expiresIn: ACCESS_TOKEN_EXPIRY }
       );
@@ -68,7 +69,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       const userAgent = request.headers["user-agent"];
       const ipAddress = request.ip;
       const refreshToken = tokenService.createRefreshToken(
-        admin.id,
+        user.id,
         userAgent,
         ipAddress
       );
@@ -83,15 +84,18 @@ export async function authRoutes(fastify: FastifyInstance) {
       reply.setCookie("refresh_token", refreshToken, {
         ...cookieOptions,
         maxAge: REFRESH_COOKIE_MAX_AGE,
-        path: "/auth", // Only sent to auth endpoints
+        path: "/", // Sent with all requests to enable refresh
       });
 
       return {
         user: {
-          id: admin.id,
-          email: admin.email,
-          name: admin.name,
-          role: "admin" as const,
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          verificationStatus: user.verificationStatus,
+          rejectionReason: user.rejectionReason,
+          rejectionDate: user.rejectionDate,
         },
         // Include token for backward compatibility with existing frontend
         // Remove this once frontend is fully migrated to cookie-based auth
@@ -128,7 +132,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       if (!rotation) {
         // Clear invalid cookies
         reply.clearCookie("access_token", { path: "/" });
-        reply.clearCookie("refresh_token", { path: "/auth" });
+        reply.clearCookie("refresh_token", { path: "/" });
         return reply.unauthorized("Invalid or expired refresh token");
       }
 
@@ -137,7 +141,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 
       if (!user) {
         reply.clearCookie("access_token", { path: "/" });
-        reply.clearCookie("refresh_token", { path: "/auth" });
+        reply.clearCookie("refresh_token", { path: "/" });
         return reply.unauthorized("User not found");
       }
 
@@ -147,7 +151,8 @@ export async function authRoutes(fastify: FastifyInstance) {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: "admin" as const,
+          role: user.role,
+          verificationStatus: user.verificationStatus,
         },
         { expiresIn: ACCESS_TOKEN_EXPIRY }
       );
@@ -162,7 +167,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       reply.setCookie("refresh_token", rotation.newToken, {
         ...cookieOptions,
         maxAge: REFRESH_COOKIE_MAX_AGE,
-        path: "/auth",
+        path: "/",
       });
 
       return {
@@ -170,7 +175,8 @@ export async function authRoutes(fastify: FastifyInstance) {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: "admin" as const,
+          role: user.role,
+          verificationStatus: user.verificationStatus,
         },
         // Include token for backward compatibility
         token: accessToken,
@@ -194,7 +200,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 
       // Clear all auth cookies
       reply.clearCookie("access_token", { path: "/" });
-      reply.clearCookie("refresh_token", { path: "/auth" });
+      reply.clearCookie("refresh_token", { path: "/" });
 
       return { message: "Logged out successfully" };
     }
@@ -218,7 +224,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 
       // Clear current session cookies
       reply.clearCookie("access_token", { path: "/" });
-      reply.clearCookie("refresh_token", { path: "/auth" });
+      reply.clearCookie("refresh_token", { path: "/" });
 
       return {
         message: "Logged out from all devices",
@@ -241,6 +247,7 @@ export async function authRoutes(fastify: FastifyInstance) {
           email: request.user.email,
           name: request.user.name,
           role: request.user.role,
+          verificationStatus: request.user.verificationStatus,
         },
       };
     }

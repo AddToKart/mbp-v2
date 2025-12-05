@@ -4,8 +4,9 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 export interface AuthenticatedUser {
   id: number;
   email: string;
-  role: "admin";
+  role: "admin" | "validator" | "citizen";
   name: string;
+  verificationStatus?: "none" | "pending" | "approved" | "rejected" | "needs_info";
 }
 
 declare module "@fastify/jwt" {
@@ -21,10 +22,19 @@ declare module "fastify" {
       request: FastifyRequest,
       reply: FastifyReply
     ) => Promise<void>;
+    requireAdmin: (
+      request: FastifyRequest,
+      reply: FastifyReply
+    ) => Promise<void>;
+    requireValidator: (
+      request: FastifyRequest,
+      reply: FastifyReply
+    ) => Promise<void>;
   }
 }
 
 export default fp(async function authenticate(fastify: FastifyInstance) {
+  // Decorator to verify JWT token exists and is valid
   fastify.decorate(
     "authenticate",
     async function authenticateRequest(
@@ -33,7 +43,6 @@ export default fp(async function authenticate(fastify: FastifyInstance) {
     ) {
       try {
         // Try to get token from cookie first, then fall back to Authorization header
-        // This allows both cookie-based and header-based auth during transition
         const cookieToken = request.cookies?.access_token;
         const authHeader = request.headers.authorization;
 
@@ -41,7 +50,7 @@ export default fp(async function authenticate(fastify: FastifyInstance) {
           return reply.unauthorized("Authentication required");
         }
 
-        // If using Authorization header, extract the token
+        // Check header format if used
         if (!cookieToken && authHeader) {
           const [scheme, token] = authHeader.split(" ");
           if (scheme?.toLowerCase() !== "bearer" || !token) {
@@ -50,12 +59,34 @@ export default fp(async function authenticate(fastify: FastifyInstance) {
         }
 
         await request.jwtVerify();
-
-        if (!request.user || request.user.role !== "admin") {
-          return reply.forbidden("Admin access required");
-        }
       } catch (error) {
         return reply.unauthorized("Invalid or expired token");
+      }
+    }
+  );
+
+  // Decorator to ensure user is an admin
+  fastify.decorate(
+    "requireAdmin",
+    async function requireAdminRequest(
+      request: FastifyRequest,
+      reply: FastifyReply
+    ) {
+      if (!request.user || request.user.role !== "admin") {
+        return reply.forbidden("Admin access required");
+      }
+    }
+  );
+
+  // Decorator to ensure user is a validator or admin
+  fastify.decorate(
+    "requireValidator",
+    async function requireValidatorRequest(
+      request: FastifyRequest,
+      reply: FastifyReply
+    ) {
+      if (!request.user || (request.user.role !== "admin" && request.user.role !== "validator")) {
+        return reply.forbidden("Validator access required");
       }
     }
   );

@@ -9,6 +9,7 @@ import { env } from "./env.js";
 import { runMigrations } from "./db/migrations.js";
 import {
   ensureDefaultAdmin,
+  ensureDefaultValidator,
   ensureDefaultCategories,
   ensureDefaultSettings,
   ensureDefaultServices,
@@ -26,6 +27,8 @@ import { adminAnalyticsRoutes } from "./routes/admin/analytics.js";
 import { publicPostRoutes } from "./routes/public/posts.js";
 import { publicServicesRoutes } from "./routes/public/services.js";
 import { cleanupExpiredTokens } from "./services/tokens.js";
+import { registrationRoutes } from "./routes/registration.js";
+import { validatorRoutes } from "./routes/validator.js";
 
 const isProduction = env.NODE_ENV === "production";
 
@@ -112,9 +115,12 @@ async function buildServer() {
     },
   });
 
+
   await fastify.register(authenticatePlugin);
   await fastify.register(csrfPlugin);
   await fastify.register(authRoutes);
+  await fastify.register(registrationRoutes); // New
+  await fastify.register(validatorRoutes); // New
   await fastify.register(adminPostRoutes);
   await fastify.register(adminCategoryRoutes);
   await fastify.register(adminSettingsRoutes);
@@ -158,6 +164,7 @@ async function buildServer() {
 async function start() {
   runMigrations();
   ensureDefaultAdmin();
+  ensureDefaultValidator();
   ensureDefaultCategories();
   ensureDefaultSettings();
   ensureDefaultServices();

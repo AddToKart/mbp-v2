@@ -13,24 +13,24 @@ import { useRouter, usePathname } from "next/navigation";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4001";
 
-// Token refresh interval (refresh 2 minutes before expiry)
-const TOKEN_REFRESH_INTERVAL = 13 * 60 * 1000; // 13 minutes (tokens expire in 15)
-
-// Paths that require authentication check
-const AUTH_REQUIRED_PATHS = ["/admin"];
+// Token refresh interval (refresh 5 minutes before expiry)
+const TOKEN_REFRESH_INTERVAL = 55 * 60 * 1000; // 55 minutes (tokens expire in 1 hour)
 
 interface User {
   id: number;
   email: string;
-  role: "admin" | "citizen";
+  role: "admin" | "citizen" | "validator";
   name: string;
+  verificationStatus?: "none" | "pending" | "approved" | "rejected" | "needs_info";
+  rejectionReason?: string;
+  rejectionDate?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  token: string | null; // Kept for backward compatibility during transition
+  token: string | null;
   csrfToken: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User | undefined>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   refreshSession: () => Promise<boolean>;
@@ -79,17 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isCheckingAuth = useRef(false);
 
   /**
-   * Check if current path requires authentication
-   */
-  const requiresAuth = useCallback((path: string) => {
-    return AUTH_REQUIRED_PATHS.some((authPath) => path.startsWith(authPath));
-  }, []);
-
-  /**
    * Fetch a fresh CSRF token from the server (only when needed)
    */
   const fetchCsrfToken = useCallback(async (): Promise<string | null> => {
-    // Don't fetch if we already have one
     if (csrfToken) return csrfToken;
 
     try {
@@ -121,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
-        setToken(data.token); // Backward compatibility
+        setToken(data.token);
         return true;
       }
 
@@ -138,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [csrfToken]);
 
   /**
-   * Check current authentication status - only called when needed
+   * Check current authentication status - ALWAYS called on mount
    */
   const checkAuth = useCallback(async () => {
     // Prevent concurrent auth checks
@@ -146,28 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isCheckingAuth.current = true;
 
     try {
-      // First check localStorage for legacy token (quick, no network)
-      const storedAuth = localStorage.getItem("auth");
-      if (storedAuth) {
-        try {
-          const parsed = JSON.parse(storedAuth);
-          if (parsed.token && parsed.user && parsed.expiresAt > Date.now()) {
-            // Use legacy token temporarily
-            setUser(parsed.user);
-            setToken(parsed.token);
-            setIsLoading(false);
-            setHasCheckedAuth(true);
-            isCheckingAuth.current = false;
-            return;
-          } else {
-            localStorage.removeItem("auth");
-          }
-        } catch {
-          localStorage.removeItem("auth");
-        }
-      }
-
-      // Check if we have a valid session via cookie
+      // Try to verify session via /auth/me endpoint
       const response = await secureFetch(`${API_BASE_URL}/auth/me`, {
         method: "GET",
       });
@@ -176,44 +147,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = await response.json();
         setUser(data.user);
       } else if (response.status === 401) {
-        // Only try refresh if we're on a protected page
-        if (requiresAuth(pathname || "")) {
-          await refreshSession();
-        } else {
-          // On public pages, just clear state silently
+        // Access token expired or missing, try to refresh
+        const refreshed = await refreshSession();
+        if (!refreshed) {
+          // Refresh also failed, user is not authenticated
           setUser(null);
           setToken(null);
         }
+      } else {
+        // Other error, clear state
+        setUser(null);
+        setToken(null);
       }
     } catch (error) {
-      // Network error - don't spam console on public pages
-      if (requiresAuth(pathname || "")) {
-        console.error("Auth check failed:", error);
-      }
+      // Network error - silently fail but clear state
+      console.error("Auth check failed:", error);
+      setUser(null);
+      setToken(null);
     } finally {
       setIsLoading(false);
       setHasCheckedAuth(true);
       isCheckingAuth.current = false;
     }
-  }, [pathname, refreshSession, requiresAuth]);
+  }, [refreshSession]);
 
-  // Initial auth check - only on protected pages or if we might have a session
+  // ALWAYS check auth on initial mount
   useEffect(() => {
-    // Skip if already checked
-    if (hasCheckedAuth) return;
-
-    // Check if we're on a protected page OR have legacy localStorage auth
-    const hasLegacyAuth = !!localStorage.getItem("auth");
-    const isProtectedPage = requiresAuth(pathname || "");
-
-    if (isProtectedPage || hasLegacyAuth) {
+    if (!hasCheckedAuth) {
       checkAuth();
-    } else {
-      // On public pages without legacy auth, just mark as done
-      setIsLoading(false);
-      setHasCheckedAuth(true);
     }
-  }, [pathname, hasCheckedAuth, checkAuth, requiresAuth]);
+  }, [hasCheckedAuth, checkAuth]);
 
   // Set up automatic token refresh (only when authenticated)
   useEffect(() => {
@@ -269,17 +232,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       setUser(data.user);
-      setToken(data.token); // Backward compatibility
+      setToken(data.token);
 
-      // Clear legacy localStorage
-      localStorage.removeItem("auth");
+      return data.user;
     },
     [fetchCsrfToken]
   );
 
   const logout = useCallback(async () => {
     try {
-      // Get CSRF token if we don't have one
       const csrf = csrfToken || (await fetchCsrfToken());
       await secureFetch(
         `${API_BASE_URL}/auth/logout`,
@@ -294,7 +255,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setToken(null);
     setCsrfToken(null);
-    localStorage.removeItem("auth");
 
     // Clear refresh interval
     if (refreshIntervalRef.current) {
@@ -320,7 +280,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setToken(null);
     setCsrfToken(null);
-    localStorage.removeItem("auth");
 
     if (refreshIntervalRef.current) {
       clearInterval(refreshIntervalRef.current);

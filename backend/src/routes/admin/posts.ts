@@ -49,7 +49,7 @@ function parseTags(raw: string | null | undefined) {
 export async function adminPostRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/posts",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function getPosts(_request: FastifyRequest, reply: FastifyReply) {
       const rows = postService.getAllPosts();
 
@@ -79,7 +79,7 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     "/admin/posts/trash",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function getDeletedPosts(
       _request: FastifyRequest,
       reply: FastifyReply
@@ -113,7 +113,7 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
 
   fastify.get<{ Params: { id: string } }>(
     "/admin/posts/:id",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function getPostById(
       request: FastifyRequest<{ Params: { id: string } }>,
       reply: FastifyReply
@@ -154,7 +154,7 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
 
   fastify.post<{ Body: CreatePostRequest }>(
     "/admin/posts",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function createPost(
       req: FastifyRequest<{ Body: CreatePostRequest }>,
       reply: FastifyReply
@@ -233,7 +233,7 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
     Body: UpdatePostRequest;
   }>(
     "/admin/posts/:id",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function updatePost(
       req: FastifyRequest<{
         Params: { id: string };
@@ -347,7 +347,7 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
 
   fastify.delete<{ Params: { id: string } }>(
     "/admin/posts/:id",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function deletePost(
       request: FastifyRequest<{ Params: { id: string } }>,
       reply: FastifyReply
@@ -371,7 +371,7 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
 
   fastify.put<{ Params: { id: string } }>(
     "/admin/posts/:id/restore",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function restorePost(
       request: FastifyRequest<{ Params: { id: string } }>,
       reply: FastifyReply
@@ -395,7 +395,7 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
 
   fastify.delete<{ Params: { id: string } }>(
     "/admin/posts/:id/permanent",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function permanentDeletePost(
       request: FastifyRequest<{ Params: { id: string } }>,
       reply: FastifyReply

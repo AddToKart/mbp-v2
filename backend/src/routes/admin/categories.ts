@@ -10,7 +10,7 @@ import * as categoryService from "../../services/categories.js";
 export async function adminCategoryRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/categories",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function listCategories(_request, reply: FastifyReply) {
       const rows = categoryService.getAllCategories();
       return reply.send(rows);
@@ -19,7 +19,7 @@ export async function adminCategoryRoutes(fastify: FastifyInstance) {
 
   fastify.post<{ Body: CreateCategoryRequest }>(
     "/admin/categories",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function createCategory(
       request: FastifyRequest<{ Body: CreateCategoryRequest }>,
       reply: FastifyReply
@@ -53,7 +53,7 @@ export async function adminCategoryRoutes(fastify: FastifyInstance) {
     Body: UpdateCategoryRequest;
   }>(
     "/admin/categories/:id",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function updateCategory(
       request: FastifyRequest<{
         Params: { id: string };
@@ -136,7 +136,7 @@ export async function adminCategoryRoutes(fastify: FastifyInstance) {
 
   fastify.delete<{ Params: { id: string } }>(
     "/admin/categories/:id",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function deleteCategory(
       request: FastifyRequest<{ Params: { id: string } }>,
       reply: FastifyReply

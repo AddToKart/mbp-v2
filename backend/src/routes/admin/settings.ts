@@ -19,7 +19,7 @@ const updateSettingsSchema = z
 export async function adminSettingsRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/settings",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function getSettings(_request: FastifyRequest, reply: FastifyReply) {
       const settings = settingsService.loadSettings();
       return reply.send(settings);
@@ -28,7 +28,7 @@ export async function adminSettingsRoutes(fastify: FastifyInstance) {
 
   fastify.put<{ Body: z.infer<typeof updateSettingsSchema> }>(
     "/admin/settings",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function updateSettings(
       request: FastifyRequest<{ Body: z.infer<typeof updateSettingsSchema> }>,
       reply: FastifyReply

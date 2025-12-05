@@ -4,7 +4,7 @@ import * as analyticsService from "../../services/analytics.js";
 export async function adminAnalyticsRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/analytics",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function getAnalytics(_request: FastifyRequest, reply: FastifyReply) {
       const summary = analyticsService.getAnalyticsSummary();
       const categoryBreakdown = analyticsService.getCategoryBreakdown();
@@ -26,7 +26,7 @@ export async function adminAnalyticsRoutes(fastify: FastifyInstance) {
 
   fastify.get<{ Params: { id: string } }>(
     "/admin/analytics/posts/:id",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function getPostAnalytics(
       request: FastifyRequest<{ Params: { id: string } }>,
       reply: FastifyReply

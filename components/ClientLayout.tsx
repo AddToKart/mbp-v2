@@ -27,8 +27,12 @@ export default function ClientLayout({
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const prefersReducedMotion = useReducedMotion();
 
-  // Check if we're on an admin route
-  const isAdminRoute = pathname.startsWith("/admin");
+  // Check if we're on a route that should hide navbar/chatbot
+  const isDashboardRoute =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/validator") ||
+    pathname.startsWith("/status") ||
+    pathname.startsWith("/register");
 
   useEffect(() => {
     // After initial render, enable animations for subsequent navigations
@@ -58,8 +62,8 @@ export default function ClientLayout({
                 {/* Offline status banner */}
                 <OfflineBanner />
 
-                {/* Only show Navbar on non-admin routes */}
-                {!isAdminRoute && <Navbar />}
+                {/* Only show Navbar on non-dashboard routes */}
+                {!isDashboardRoute && <Navbar />}
                 <motion.main
                   id="main-content"
                   tabIndex={-1}
@@ -72,8 +76,8 @@ export default function ClientLayout({
                 >
                   {children}
                 </motion.main>
-                {/* Only show MariBot on non-admin routes */}
-                {!isAdminRoute && <MariBot />}
+                {/* Only show MariBot on non-dashboard routes */}
+                {!isDashboardRoute && <MariBot />}
               </ErrorBoundary>
             </ToastProvider>
           </LazyMotion>

@@ -34,7 +34,9 @@
     "better-sqlite3": "^9.4.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
+    "face-api.js": "^0.22.2",
     "fastify": "^4.26.2",
     "fastify-plugin": "^4.5.0",
     "framer-motion": "^12.23.22",
@@ -45,6 +47,7 @@
     "react-markdown": "^10.1.0",
     "recharts": "^3.5.1",
     "tailwind-merge": "^3.3.1",
+    "tesseract.js": "^6.0.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {

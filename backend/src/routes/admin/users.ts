@@ -8,7 +8,7 @@ import * as userService from "../../services/users.js";
 export async function adminUserRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/admin/users",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function listUsers(_request: FastifyRequest, reply: FastifyReply) {
       const rows = userService.getAllUsers();
       return reply.send(rows);
@@ -17,7 +17,7 @@ export async function adminUserRoutes(fastify: FastifyInstance) {
 
   fastify.post<{ Body: CreateUserRequest }>(
     "/admin/users",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function createUser(
       request: FastifyRequest<{ Body: CreateUserRequest }> & {
         user: { id: number };
@@ -54,7 +54,7 @@ export async function adminUserRoutes(fastify: FastifyInstance) {
 
   fastify.delete<{ Params: { id: string } }>(
     "/admin/users/:id",
-    { preHandler: fastify.authenticate },
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
     async function deleteUser(
       request: FastifyRequest<{ Params: { id: string } }> & {
         user: { id: number };

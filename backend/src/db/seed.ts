@@ -527,14 +527,40 @@ const defaultSettings: Record<string, string> = {
 
 export function ensureDefaultAdmin() {
   const existing = db
-    .prepare("SELECT id FROM admins WHERE email = ?")
+    .prepare("SELECT id FROM users WHERE email = ?")
     .get(env.DEFAULT_ADMIN_EMAIL);
 
   if (!existing) {
     const passwordHash = bcrypt.hashSync(env.DEFAULT_ADMIN_PASSWORD, 10);
     db.prepare(
-      "INSERT INTO admins (email, password_hash, name) VALUES (?, ?, ?)"
-    ).run(env.DEFAULT_ADMIN_EMAIL, passwordHash, env.DEFAULT_ADMIN_NAME);
+      "INSERT INTO users (email, password_hash, name, role, verification_status) VALUES (?, ?, ?, ?, ?)"
+    ).run(
+      env.DEFAULT_ADMIN_EMAIL,
+      passwordHash,
+      env.DEFAULT_ADMIN_NAME,
+      'admin',
+      'approved'
+    );
+  }
+}
+
+export function ensureDefaultValidator() {
+  const email = "validator@admin.com";
+  const existing = db
+    .prepare("SELECT id FROM users WHERE email = ?")
+    .get(email);
+
+  if (!existing) {
+    const passwordHash = bcrypt.hashSync("admin123", 10);
+    db.prepare(
+      "INSERT INTO users (email, password_hash, name, role, verification_status) VALUES (?, ?, ?, ?, ?)"
+    ).run(
+      email,
+      passwordHash,
+      "Default Validator",
+      "validator",
+      "approved"
+    );
   }
 }
 

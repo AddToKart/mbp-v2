@@ -198,3 +198,66 @@ export const UpdateUserSchema = z.object({
 });
 
 export type UpdateUserRequest = z.infer<typeof UpdateUserSchema>;
+
+// --- Registration & Application Schemas ---
+
+export const VerificationStatusSchema = z.enum(["none", "pending", "approved", "rejected", "needs_info"]);
+export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
+
+export const ApplicationStatusSchema = z.enum(["pending", "approved", "rejected", "needs_info"]);
+export type ApplicationStatus = z.infer<typeof ApplicationStatusSchema>;
+
+export const RegisterStep1Schema = z.object({
+  email: z.string().email().max(MAX_EMAIL_LENGTH).toLowerCase().trim(),
+  password: z.string().min(MIN_PASSWORD_LENGTH).max(MAX_PASSWORD_LENGTH),
+  firstName: z.string().min(1, "First name is required").max(MAX_NAME_LENGTH).trim(),
+  middleName: z.string().max(MAX_NAME_LENGTH).trim().optional(),
+  lastName: z.string().min(1, "Last name is required").max(MAX_NAME_LENGTH).trim(),
+  address: z.string().min(5, "Complete address is required").max(500),
+  phone: z.string().min(10, "Valid phone number is required").max(20),
+  dob: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)), // Accept ISO or YYYY-MM-DD
+});
+
+export type RegisterStep1Request = z.infer<typeof RegisterStep1Schema>;
+
+export const RegisterStep2Schema = z.object({
+  idCardFront: SafeUrlSchema.refine((val) => !!val, "Front ID image is required"),
+  idCardBack: SafeUrlSchema.refine((val) => !!val, "Back ID image is required"),
+});
+
+export type RegisterStep2Request = z.infer<typeof RegisterStep2Schema>;
+
+export const RegisterStep3Schema = z.object({
+  selfieImage: SafeUrlSchema.refine((val) => !!val, "Selfie image is required"),
+  aiAnalysis: z.string().optional(), // JSON string from frontend analysis
+});
+
+export type RegisterStep3Request = z.infer<typeof RegisterStep3Schema>;
+
+// Validator Actions
+export const ValidatorActionSchema = z.object({
+  applicationId: z.number(),
+  action: z.enum(["approve", "reject", "request_info"]),
+  notes: z.string().max(1000).optional(),
+});
+
+export type ValidatorActionRequest = z.infer<typeof ValidatorActionSchema>;
+
+export const ApplicationResponseSchema = z.object({
+  id: z.number(),
+  userId: z.number(),
+  fullName: z.string(),
+  address: z.string(),
+  phone: z.string(),
+  dob: z.string(),
+  idCardFront: z.string().nullable(),
+  idCardBack: z.string().nullable(),
+  selfieImage: z.string().nullable(),
+  aiAnalysisJson: z.string().nullable(),
+  status: ApplicationStatusSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  userEmail: z.string().optional(), // Joined field
+});
+
+export type ApplicationResponse = z.infer<typeof ApplicationResponseSchema>;

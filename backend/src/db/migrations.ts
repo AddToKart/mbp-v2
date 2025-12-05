@@ -1,23 +1,101 @@
 import { db } from "./client.js";
 
 export function runMigrations() {
+  // 1. Rename admins to users if it exists and users does not (Migration logic)
+  try {
+    const adminTableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='admins'").get();
+    const userTableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").get();
+
+    if (adminTableExists && !userTableExists) {
+      db.exec("ALTER TABLE admins RENAME TO users");
+      // Add new columns to the renamed table with default values
+      db.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'admin'");
+      db.exec("ALTER TABLE users ADD COLUMN verification_status TEXT NOT NULL DEFAULT 'approved'");
+      db.exec("ALTER TABLE users ADD COLUMN rejection_reason TEXT");
+      db.exec("ALTER TABLE users ADD COLUMN rejection_date TEXT");
+    }
+  } catch (error) {
+    console.error("Migration error (admins -> users):", error);
+  }
+
+  // 2. Create users table (for fresh installs) OR ensure it exists
   db.exec(`
-    CREATE TABLE IF NOT EXISTS admins (
+    CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       name TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'citizen', -- 'admin', 'validator', 'citizen'
+      verification_status TEXT NOT NULL DEFAULT 'none', -- 'none', 'pending', 'approved', 'rejected', 'needs_info'
+      rejection_reason TEXT,
+      rejection_date TEXT,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
-    CREATE TRIGGER IF NOT EXISTS admins_updated_at
-    AFTER UPDATE ON admins
+    CREATE TRIGGER IF NOT EXISTS users_updated_at
+    AFTER UPDATE ON users
     FOR EACH ROW
     BEGIN
-      UPDATE admins SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
+      UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
     END;
+  `);
 
+  // Ensure columns exist if table was created before but columns missing (idempotency for 'users' table)
+  try { db.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'citizen'"); } catch (e) { }
+  try { db.exec("ALTER TABLE users ADD COLUMN verification_status TEXT NOT NULL DEFAULT 'none'"); } catch (e) { }
+  try { db.exec("ALTER TABLE users ADD COLUMN rejection_reason TEXT"); } catch (e) { }
+  try { db.exec("ALTER TABLE users ADD COLUMN rejection_date TEXT"); } catch (e) { }
+
+
+  // 3. Applications Table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS applications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      full_name TEXT NOT NULL,
+      address TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      dob TEXT NOT NULL,
+      id_card_front TEXT,
+      id_card_back TEXT,
+      selfie_image TEXT,
+      ai_analysis_json TEXT, -- JSON string of AI results
+      status TEXT NOT NULL DEFAULT 'pending', -- Synced with user.verification_status usually
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE TRIGGER IF NOT EXISTS applications_updated_at
+    AFTER UPDATE ON applications
+    FOR EACH ROW
+    BEGIN
+      UPDATE applications SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
+    END;
+    
+    CREATE INDEX IF NOT EXISTS applications_user_id_idx ON applications(user_id);
+    CREATE INDEX IF NOT EXISTS applications_status_idx ON applications(status);
+  `);
+
+  // 4. Validator Actions Table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS validator_actions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      application_id INTEGER NOT NULL,
+      validator_id INTEGER NOT NULL,
+      action TEXT NOT NULL, -- 'approve', 'reject', 'request_info'
+      notes TEXT,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(application_id) REFERENCES applications(id) ON DELETE CASCADE,
+      FOREIGN KEY(validator_id) REFERENCES users(id) ON DELETE SET NULL
+    );
+    
+    CREATE INDEX IF NOT EXISTS validator_actions_app_id_idx ON validator_actions(application_id);
+  `);
+
+  // 5. Existing tables (References updated to 'users')
+  db.exec(`
     CREATE TABLE IF NOT EXISTS posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
@@ -35,7 +113,8 @@ export function runMigrations() {
       view_count INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY(author_id) REFERENCES admins(id) ON DELETE CASCADE
+      deleted_at TEXT,
+      FOREIGN KEY(author_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
     CREATE TRIGGER IF NOT EXISTS posts_updated_at
@@ -79,19 +158,7 @@ export function runMigrations() {
       UPDATE site_settings SET updated_at = CURRENT_TIMESTAMP WHERE key = OLD.key;
     END;
 
-    -- Add deleted_at column to posts if it doesn't exist
-    -- SQLite doesn't support IF NOT EXISTS for ADD COLUMN, so we wrap in a try-catch block equivalent
-    -- by attempting it and ignoring the error if it fails (which means it likely exists)
-  `);
-
-  try {
-    db.exec(`ALTER TABLE posts ADD COLUMN deleted_at TEXT;`);
-  } catch (error) {
-    // Ignore error if column already exists
-  }
-
-  db.exec(`
-    -- Refresh tokens table for secure token rotation
+    -- Refresh tokens table
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       token_hash TEXT NOT NULL UNIQUE,
@@ -101,7 +168,7 @@ export function runMigrations() {
       expires_at TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       revoked_at TEXT,
-      FOREIGN KEY(user_id) REFERENCES admins(id) ON DELETE CASCADE
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
     CREATE INDEX IF NOT EXISTS refresh_tokens_user_id_idx ON refresh_tokens(user_id);
@@ -141,7 +208,7 @@ export function runMigrations() {
     CREATE INDEX IF NOT EXISTS services_slug_idx ON services(slug);
     CREATE INDEX IF NOT EXISTS services_is_active_idx ON services(is_active);
 
-    -- Job listings table for job portal
+    -- Job listings table
     CREATE TABLE IF NOT EXISTS job_listings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
@@ -209,7 +276,7 @@ export function runMigrations() {
     CREATE INDEX IF NOT EXISTS tourism_items_type_idx ON tourism_items(type);
     CREATE INDEX IF NOT EXISTS tourism_items_is_active_idx ON tourism_items(is_active);
 
-    -- Post views tracking table for unique view counts
+    -- Post views tracking table
     CREATE TABLE IF NOT EXISTS post_views (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       post_id INTEGER NOT NULL,
@@ -218,15 +285,13 @@ export function runMigrations() {
       user_agent TEXT,
       viewed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE CASCADE,
-      FOREIGN KEY(user_id) REFERENCES admins(id) ON DELETE SET NULL
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL
     );
 
     CREATE INDEX IF NOT EXISTS post_views_post_id_idx ON post_views(post_id);
     CREATE INDEX IF NOT EXISTS post_views_user_id_idx ON post_views(user_id);
     CREATE INDEX IF NOT EXISTS post_views_ip_address_idx ON post_views(ip_address);
-    -- Unique constraint: one view per user per post (for logged-in users)
     CREATE UNIQUE INDEX IF NOT EXISTS post_views_user_unique_idx ON post_views(post_id, user_id) WHERE user_id IS NOT NULL;
-    -- Unique constraint: one view per IP per post per day (for guests)
     CREATE UNIQUE INDEX IF NOT EXISTS post_views_ip_daily_idx ON post_views(post_id, ip_address, DATE(viewed_at)) WHERE user_id IS NULL;
   `);
 }
