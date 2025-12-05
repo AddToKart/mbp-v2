@@ -1,0 +1,6 @@
+app/announcement/[id]/page.tsx(41,5): error TS2322: Type '{ type: "article"; title: string; description: string; url: string; images: { url: string; width: number; height: number; alt: string; }[]; publishedTime: string; authors: { name: string; role: string; }[]; section: string; }' is not assignable to type 'OpenGraph | null | undefined'.
+  Types of property 'authors' are incompatible.
+    Type '{ name: string; role: string; }[]' is not assignable to type 'string | URL | (string | URL)[] | null | undefined'.
+      Type '{ name: string; role: string; }[]' is not assignable to type '(string | URL)[]'.
+        Type '{ name: string; role: string; }' is not assignable to type 'string | URL'.
+app/announcement/[id]/page.tsx(100,9): error TS2322: Type '{ name: string; role: string; }' is not assignable to type 'string'.
