@@ -106,7 +106,9 @@ export async function fetchPostSummaries(limit = 30): Promise<PostSummary[]> {
     const url = new URL(buildUrl("/posts"));
     if (limit) url.searchParams.set("limit", String(limit));
 
-    const data = await fetchJson<PublicPost[]>(`/posts${url.search}`);
+    const data = await fetchJson<PublicPost[]>(`/posts${url.search}`, {
+      next: { revalidate: 60, tags: ["posts"] },
+    });
     return data.map((post) =>
       mapToSummary(post, { readTimeSource: post.excerpt })
     );

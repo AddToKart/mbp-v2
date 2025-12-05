@@ -19,6 +19,7 @@ export type PostRow = {
   createdAt: string;
   updatedAt: string;
   viewCount: number;
+  deletedAt: string | null;
 };
 
 export type PublicPostRow = {
@@ -118,10 +119,30 @@ export function getAllPosts() {
       COALESCE(c.name, p.category) AS categoryName, p.status, p.tags,
                   p.featured_image AS featuredImage, p.author_id AS authorId, p.author_name AS authorName,
                   p.published_at AS publishedAt, p.scheduled_at AS scheduledAt,
-                  p.created_at AS createdAt, p.updated_at AS updatedAt, p.view_count AS viewCount
+                  p.created_at AS createdAt, p.updated_at AS updatedAt, p.view_count AS viewCount,
+                  p.deleted_at AS deletedAt
            FROM posts p
            LEFT JOIN categories c ON c.slug = p.category OR c.name = p.category
+           WHERE p.deleted_at IS NULL
            ORDER BY p.created_at DESC`
+    )
+    .all() as PostRow[];
+  return rows;
+}
+
+export function getDeletedPosts() {
+  const rows = db
+    .prepare(
+      `SELECT p.id, p.title, p.slug, p.excerpt, p.content, COALESCE(c.slug, p.category) AS categorySlug,
+      COALESCE(c.name, p.category) AS categoryName, p.status, p.tags,
+                  p.featured_image AS featuredImage, p.author_id AS authorId, p.author_name AS authorName,
+                  p.published_at AS publishedAt, p.scheduled_at AS scheduledAt,
+                  p.created_at AS createdAt, p.updated_at AS updatedAt, p.view_count AS viewCount,
+                  p.deleted_at AS deletedAt
+           FROM posts p
+           LEFT JOIN categories c ON c.slug = p.category OR c.name = p.category
+           WHERE p.deleted_at IS NOT NULL
+           ORDER BY p.deleted_at DESC`
     )
     .all() as PostRow[];
   return rows;
@@ -134,10 +155,11 @@ export function getPostById(id: number) {
       COALESCE(c.name, p.category) AS categoryName, p.status, p.tags,
                   p.featured_image AS featuredImage, p.author_id AS authorId, p.author_name AS authorName,
                   p.published_at AS publishedAt, p.scheduled_at AS scheduledAt,
-                  p.created_at AS createdAt, p.updated_at AS updatedAt, p.view_count AS viewCount
+                  p.created_at AS createdAt, p.updated_at AS updatedAt, p.view_count AS viewCount,
+                  p.deleted_at AS deletedAt
            FROM posts p
            LEFT JOIN categories c ON c.slug = p.category OR c.name = p.category
-           WHERE p.id = ?`
+           WHERE p.id = ? AND p.deleted_at IS NULL`
     )
     .get(id) as PostRow | undefined;
   return row;
@@ -190,6 +212,16 @@ export function updatePost(id: number, updates: string[], values: unknown[]) {
 }
 
 export function deletePost(id: number) {
+  return db
+    .prepare("UPDATE posts SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+    .run(id);
+}
+
+export function restorePost(id: number) {
+  return db.prepare("UPDATE posts SET deleted_at = NULL WHERE id = ?").run(id);
+}
+
+export function permanentDeletePost(id: number) {
   return db.prepare("DELETE FROM posts WHERE id = ?").run(id);
 }
 
@@ -212,7 +244,7 @@ export function getPublicPosts(
            p.published_at AS publishedAt, p.created_at AS createdAt
     FROM posts p
     LEFT JOIN categories c ON c.slug = p.category OR c.name = p.category
-    WHERE p.status = 'published'
+    WHERE p.status = 'published' AND p.deleted_at IS NULL
   `;
 
   const params: (string | number)[] = [];
@@ -249,7 +281,7 @@ export function getPublicPostBySlug(slug: string) {
               p.published_at AS publishedAt, p.created_at AS createdAt, p.view_count
        FROM posts p
        LEFT JOIN categories c ON c.slug = p.category OR c.name = p.category
-       WHERE p.slug = ? AND p.status = 'published'`
+       WHERE p.slug = ? AND p.status = 'published' AND p.deleted_at IS NULL`
     )
     .get(slug) as (PublicPostRow & { view_count: number }) | undefined;
 

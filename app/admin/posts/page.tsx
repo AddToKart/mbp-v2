@@ -23,6 +23,8 @@ import {
   FunnelIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "@/contexts/AuthContext";
+import { revalidatePosts } from "@/app/actions";
+import ConfirmModal from "@/components/ui/confirm-modal";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4001";
 
@@ -66,6 +68,8 @@ export default function AdminPostsPage() {
   const [isFetching, setIsFetching] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<number | null>(null);
 
   // Pull latest admin posts from Fastify backend using stored JWT token
   const fetchPosts = useCallback(async () => {
@@ -166,35 +170,34 @@ export default function AdminPostsPage() {
     });
   };
 
-  const handleDelete = async (postId: number) => {
-    if (!token) {
-      return;
-    }
+  const handleDeleteClick = (postId: number) => {
+    setPostToDelete(postId);
+    setDeleteModalOpen(true);
+  };
 
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this post? This action cannot be undone."
-    );
+  const handleConfirmDelete = async () => {
+    if (!postToDelete || !token) return;
 
-    if (!confirmed) {
-      return;
-    }
-
-    setIsDeleting(postId);
+    setIsDeleting(postToDelete);
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/posts/${postId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/admin/posts/${postToDelete}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete post");
       }
 
-      setPosts((prev) => prev.filter((post) => post.id !== postId));
+      await revalidatePosts();
+      setPosts((prev) => prev.filter((post) => post.id !== postToDelete));
     } catch (deleteError) {
       const message =
         deleteError instanceof Error
@@ -203,6 +206,8 @@ export default function AdminPostsPage() {
       setError(message);
     } finally {
       setIsDeleting(null);
+      setDeleteModalOpen(false);
+      setPostToDelete(null);
     }
   };
 
@@ -405,7 +410,7 @@ export default function AdminPostsPage() {
                         variant="ghost"
                         size="sm"
                         className="text-muted-foreground hover:!bg-red-600 hover:!text-white transition-colors"
-                        onClick={() => handleDelete(post.id)}
+                        onClick={() => handleDeleteClick(post.id)}
                         disabled={isDeleting === post.id}
                       >
                         <TrashIcon className="w-4 h-4 mr-2" />
@@ -452,6 +457,18 @@ export default function AdminPostsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Move to Recycle Bin?"
+        message="This post will be moved to the Recycle Bin. You can restore it later if needed."
+        confirmText="Move to Trash"
+        cancelText="Cancel"
+        variant="warning"
+        isLoading={isDeleting === postToDelete}
+      />
     </div>
   );
 }

@@ -10,9 +10,9 @@ import {
   ChartBarIcon,
   UsersIcon,
   CogIcon,
-  MegaphoneIcon,
   ArrowLeftOnRectangleIcon,
   Squares2X2Icon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,13 +31,13 @@ interface SidebarLink {
 const mainLinks: SidebarLink[] = [
   { name: "Dashboard", href: "/admin", icon: HomeIcon },
   { name: "Posts", href: "/admin/posts", icon: DocumentTextIcon, badge: "12" },
-  { name: "Announcements", href: "/admin/announcements", icon: MegaphoneIcon },
   { name: "Analytics", href: "/admin/analytics", icon: ChartBarIcon },
   { name: "Users", href: "/admin/users", icon: UsersIcon },
 ];
 
 const settingsLinks: SidebarLink[] = [
   { name: "Categories", href: "/admin/categories", icon: Squares2X2Icon },
+  { name: "Recycle Bin", href: "/admin/posts/trash", icon: TrashIcon },
   { name: "Settings", href: "/admin/settings", icon: CogIcon },
 ];
 

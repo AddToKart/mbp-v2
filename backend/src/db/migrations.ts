@@ -79,6 +79,18 @@ export function runMigrations() {
       UPDATE site_settings SET updated_at = CURRENT_TIMESTAMP WHERE key = OLD.key;
     END;
 
+    -- Add deleted_at column to posts if it doesn't exist
+    -- SQLite doesn't support IF NOT EXISTS for ADD COLUMN, so we wrap in a try-catch block equivalent
+    -- by attempting it and ignoring the error if it fails (which means it likely exists)
+  `);
+
+  try {
+    db.exec(`ALTER TABLE posts ADD COLUMN deleted_at TEXT;`);
+  } catch (error) {
+    // Ignore error if column already exists
+  }
+
+  db.exec(`
     -- Refresh tokens table for secure token rotation
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

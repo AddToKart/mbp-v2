@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "@/lib/motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,6 +68,12 @@ export function ConfirmModal({
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
   const config = variantConfig[variant];
   const Icon = config.icon;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   // Handle escape key
   useEffect(() => {
@@ -119,7 +126,9 @@ export function ConfirmModal({
     }
   }, [onConfirm]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -213,12 +222,13 @@ export function ConfirmModal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 
 // Hook for easier usage
-import { useState } from "react";
+import { useState as useHookState } from "react";
 
 interface UseConfirmModalOptions {
   onConfirm: () => void | Promise<void>;
@@ -230,9 +240,11 @@ interface UseConfirmModalOptions {
 }
 
 export function useConfirmModal() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [options, setOptions] = useState<UseConfirmModalOptions | null>(null);
+  const [isOpen, setIsOpen] = useHookState(false);
+  const [isLoading, setIsLoading] = useHookState(false);
+  const [options, setOptions] = useHookState<UseConfirmModalOptions | null>(
+    null
+  );
 
   const confirm = useCallback(
     (opts: UseConfirmModalOptions): Promise<boolean> => {
@@ -281,3 +293,5 @@ export function useConfirmModal() {
 
   return { confirm, ConfirmModal: ConfirmModalComponent };
 }
+
+export default ConfirmModal;

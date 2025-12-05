@@ -77,6 +77,40 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
     }
   );
 
+  fastify.get(
+    "/admin/posts/trash",
+    { preHandler: fastify.authenticate },
+    async function getDeletedPosts(
+      _request: FastifyRequest,
+      reply: FastifyReply
+    ) {
+      const rows = postService.getDeletedPosts();
+
+      return reply.send(
+        rows.map((row) => ({
+          id: row.id,
+          title: row.title,
+          slug: row.slug,
+          excerpt: row.excerpt,
+          content: row.content,
+          categorySlug: row.categorySlug,
+          categoryName: row.categoryName ?? row.categorySlug,
+          status: row.status,
+          tags: parseTags(row.tags),
+          featuredImage: row.featuredImage,
+          authorId: row.authorId,
+          authorName: row.authorName,
+          publishedAt: row.publishedAt,
+          scheduledAt: row.scheduledAt,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt,
+          viewCount: row.viewCount,
+          deletedAt: row.deletedAt,
+        }))
+      );
+    }
+  );
+
   fastify.get<{ Params: { id: string } }>(
     "/admin/posts/:id",
     { preHandler: fastify.authenticate },
@@ -170,7 +204,7 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
         return reply.badRequest(message);
       }
 
-      const result = postService.createPost({
+      postService.createPost({
         title: sanitizedTitle,
         slug,
         excerpt: sanitizedExcerpt,
@@ -185,8 +219,10 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
         scheduledAt: scheduledIso,
       });
 
+      postService.clearPublicPostsCache();
+
       return reply.code(201).send({
-        id: result.lastInsertRowid,
+        message: "Post created successfully",
         slug,
       });
     }
@@ -303,6 +339,7 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
       }
 
       postService.updatePost(id, updates, values);
+      postService.clearPublicPostsCache();
 
       return reply.send({ updated: true });
     }
@@ -327,6 +364,55 @@ export async function adminPostRoutes(fastify: FastifyInstance) {
         return reply.notFound("Post not found");
       }
 
+      postService.clearPublicPostsCache();
+      return reply.code(204).send();
+    }
+  );
+
+  fastify.put<{ Params: { id: string } }>(
+    "/admin/posts/:id/restore",
+    { preHandler: fastify.authenticate },
+    async function restorePost(
+      request: FastifyRequest<{ Params: { id: string } }>,
+      reply: FastifyReply
+    ) {
+      const id = Number.parseInt(request.params.id, 10);
+
+      if (Number.isNaN(id)) {
+        return reply.badRequest("Invalid post id");
+      }
+
+      const result = postService.restorePost(id);
+
+      if (result.changes === 0) {
+        return reply.notFound("Post not found in trash");
+      }
+
+      postService.clearPublicPostsCache();
+      return reply.send({ restored: true });
+    }
+  );
+
+  fastify.delete<{ Params: { id: string } }>(
+    "/admin/posts/:id/permanent",
+    { preHandler: fastify.authenticate },
+    async function permanentDeletePost(
+      request: FastifyRequest<{ Params: { id: string } }>,
+      reply: FastifyReply
+    ) {
+      const id = Number.parseInt(request.params.id, 10);
+
+      if (Number.isNaN(id)) {
+        return reply.badRequest("Invalid post id");
+      }
+
+      const result = postService.permanentDeletePost(id);
+
+      if (result.changes === 0) {
+        return reply.notFound("Post not found");
+      }
+
+      postService.clearPublicPostsCache();
       return reply.code(204).send();
     }
   );

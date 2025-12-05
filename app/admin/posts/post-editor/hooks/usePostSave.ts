@@ -6,6 +6,7 @@ import type { PostFormData, PostStatus, PolicyWarning } from "../types";
 import { API_BASE_URL } from "../constants";
 import { slugify, fileToDataUrl } from "../utils";
 import { useToast } from "@/contexts/ToastContext";
+import { revalidatePosts } from "@/app/actions";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -191,6 +192,8 @@ export function usePostSave({
         throw new Error(errorData?.message ?? "Failed to save post");
       }
 
+      await revalidatePosts();
+
       showToast(
         mode === "edit"
           ? "Post updated successfully!"
@@ -276,6 +279,8 @@ export function usePostSave({
         } | null;
         throw new Error(errorData?.message ?? "Failed to save post");
       }
+
+      await revalidatePosts();
 
       showToast("Post force published successfully!", { type: "success" });
       router.push("/admin/posts");
