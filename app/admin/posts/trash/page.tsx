@@ -23,6 +23,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { revalidatePosts } from "@/app/actions";
 import ConfirmModal from "@/components/ui/confirm-modal";
+import { useQueryClient } from "@tanstack/react-query";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4001";
 
@@ -58,6 +59,7 @@ interface AdminPostResponse {
 export default function TrashPage() {
   const router = useRouter();
   const { token } = useAuth();
+  const queryClient = useQueryClient();
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isFetching, setIsFetching] = useState(false);
@@ -137,12 +139,12 @@ export default function TrashPage() {
     return Number.isNaN(date.getTime())
       ? "Unknown"
       : date.toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
   };
 
   const handleRestoreClick = (postId: number) => {
@@ -166,6 +168,8 @@ export default function TrashPage() {
       if (!response.ok) throw new Error("Failed to restore post");
 
       await revalidatePosts();
+      // Invalidate client-side TanStack Query cache for posts
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
       setPosts((prev) => prev.filter((p) => p.id !== selectedPost));
     } catch (err) {
       alert("Failed to restore post");
@@ -247,9 +251,8 @@ export default function TrashPage() {
               <CardDescription>
                 {isFetching
                   ? "Loading..."
-                  : `${filteredPosts.length} deleted post${
-                      filteredPosts.length !== 1 ? "s" : ""
-                    } found`}
+                  : `${filteredPosts.length} deleted post${filteredPosts.length !== 1 ? "s" : ""
+                  } found`}
               </CardDescription>
             </div>
             <Button

@@ -7,6 +7,7 @@ import { API_BASE_URL } from "../constants";
 import { slugify, fileToDataUrl } from "../utils";
 import { useToast } from "@/contexts/ToastContext";
 import { revalidatePosts } from "@/app/actions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -40,6 +41,7 @@ export function usePostSave({
 }: UsePostSaveProps): UsePostSaveReturn {
   const router = useRouter();
   const { showToast } = useToast();
+  const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
 
@@ -193,6 +195,8 @@ export function usePostSave({
       }
 
       await revalidatePosts();
+      // Invalidate client-side TanStack Query cache for posts
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
 
       showToast(
         mode === "edit"
@@ -281,6 +285,8 @@ export function usePostSave({
       }
 
       await revalidatePosts();
+      // Invalidate client-side TanStack Query cache for posts
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
 
       showToast("Post force published successfully!", { type: "success" });
       router.push("/admin/posts");

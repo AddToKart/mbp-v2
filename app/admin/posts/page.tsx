@@ -25,6 +25,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { revalidatePosts } from "@/app/actions";
 import ConfirmModal from "@/components/ui/confirm-modal";
+import { useQueryClient } from "@tanstack/react-query";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4001";
 
@@ -62,6 +63,7 @@ type PostStatusFilter = (typeof FILTERS)[number];
 export default function AdminPostsPage() {
   const router = useRouter();
   const { token } = useAuth();
+  const queryClient = useQueryClient();
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<PostStatusFilter>("all");
@@ -197,6 +199,8 @@ export default function AdminPostsPage() {
       }
 
       await revalidatePosts();
+      // Invalidate client-side TanStack Query cache for posts
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
       setPosts((prev) => prev.filter((post) => post.id !== postToDelete));
     } catch (deleteError) {
       const message =
@@ -296,9 +300,8 @@ export default function AdminPostsPage() {
               <CardDescription>
                 {isFetching
                   ? "Loading posts"
-                  : `${filteredPosts.length} post${
-                      filteredPosts.length !== 1 ? "s" : ""
-                    } found`}
+                  : `${filteredPosts.length} post${filteredPosts.length !== 1 ? "s" : ""
+                  } found`}
               </CardDescription>
             </div>
             <Button

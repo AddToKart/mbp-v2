@@ -2,6 +2,7 @@ import { env } from "./env";
 import { PublicPost } from "@/types/shared";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
+const isProduction = process.env.NODE_ENV === "production";
 
 export interface PostSummary {
   id: number;
@@ -35,10 +36,10 @@ function formatDate(value: string | null | undefined): string {
   return Number.isNaN(parsed.getTime())
     ? "Unscheduled"
     : parsed.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 }
 
 function computeReadTime(text: string | undefined): string {
@@ -82,10 +83,19 @@ function mapToSummary(
 
 async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
   try {
+    // In development, use shorter cache or no-store for more reliable updates
+    // In production, use proper revalidation with tags
+    const nextOptions = init?.next ?? {};
+    const cacheConfig = isProduction
+      ? { next: { revalidate: 60, ...nextOptions } }
+      : { cache: "no-store" as const };
+
     const response = await fetch(buildUrl(path), {
       headers: { Accept: "application/json", ...(init?.headers ?? {}) },
-      next: { revalidate: 60 }, // Cache for 60 seconds
+      ...cacheConfig,
       ...init,
+      // Re-apply next options for production to ensure they're not overwritten
+      ...(isProduction && init?.next ? { next: { revalidate: 60, ...nextOptions } } : {}),
     });
 
     if (!response.ok) {
