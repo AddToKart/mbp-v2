@@ -74,20 +74,22 @@ export default function Navbar() {
     return parts[0].substring(0, 2).toUpperCase();
   };
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Announcements", href: "/announcements" },
-    { name: "Services", href: "/#services" },
-    { name: "Contact", href: "/#contact" },
-  ];
-
   // Check if user is logged in and should see profile
   // Only show profile for: approved citizens, admins, validators
+  // Also controls visibility of "Community" tab
   const isLoggedIn = !!user && !isLoading && (
     user.role === "admin" ||
     user.role === "validator" ||
     (user.role === "citizen" && user.verificationStatus === "approved")
   );
+
+  const navLinks = [
+    { name: "Home", href: "/" },
+    { name: "Announcements", href: "/announcements" },
+    { name: "Services", href: "/#services" },
+    ...(isLoggedIn ? [{ name: "Community", href: "/community" }] : []),
+    { name: "Contact", href: "/#contact" },
+  ];
 
   return (
     <motion.nav
