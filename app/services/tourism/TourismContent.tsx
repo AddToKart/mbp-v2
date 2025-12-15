@@ -192,6 +192,7 @@ export default function TourismContent({
               alt="Santa Maria Tourism Hero"
               priority
               enableHover={false}
+              sizes="100vw"
               className="object-cover w-full h-full"
             />
             {/* Premium Gradient Overlay */}
