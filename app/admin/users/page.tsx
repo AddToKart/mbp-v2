@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "@/lib/motion";
 import {
   Card,
   CardContent,
@@ -516,8 +517,14 @@ export default function AdminUsersPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  users.map((user) => (
-                    <TableRow key={user.id} className="hover:bg-muted/20 border-0">
+                  users.map((user, index) => (
+                    <motion.tr
+                      key={user.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.03 }}
+                      className="hover:bg-muted/20 border-0"
+                    >
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
@@ -566,7 +573,7 @@ export default function AdminUsersPage() {
                           </Button>
                         </div>
                       </TableCell>
-                    </TableRow>
+                    </motion.tr>
                   ))
                 )}
               </TableBody>
@@ -596,45 +603,52 @@ export default function AdminUsersPage() {
                   <p>No users found</p>
                 </div>
               ) : (
-                users.map((user) => (
-                  <Card key={user.id} className="border-0 bg-muted/30 hover:bg-muted/50 transition-colors group flex flex-col">
-                    <CardContent className="p-4 flex flex-col flex-1">
-                      {/* User Info */}
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg shrink-0">
-                          {user.name.charAt(0).toUpperCase()}
+                users.map((user, index) => (
+                  <motion.div
+                    key={user.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.2, delay: index * 0.03 }}
+                  >
+                    <Card className="h-full border-0 bg-muted/30 hover:bg-muted/50 transition-colors group flex flex-col">
+                      <CardContent className="p-4 flex flex-col flex-1">
+                        {/* User Info */}
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg shrink-0">
+                            {user.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-foreground truncate">{user.name}</h3>
+                            <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                          </div>
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleEdit(user)}>
+                              <PencilSquareIcon className="w-3.5 h-3.5 text-primary" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:bg-destructive/10" onClick={() => handleDelete(user)}>
+                              <TrashIcon className="w-3.5 h-3.5 text-destructive" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-foreground truncate">{user.name}</h3>
-                          <p className="text-sm text-muted-foreground truncate">{user.email}</p>
-                        </div>
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleEdit(user)}>
-                            <PencilSquareIcon className="w-3.5 h-3.5 text-primary" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:bg-destructive/10" onClick={() => handleDelete(user)}>
-                            <TrashIcon className="w-3.5 h-3.5 text-destructive" />
-                          </Button>
-                        </div>
-                      </div>
 
-                      {/* Badges */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <Badge className={`capitalize border-0 ${getRoleBadge(user.role)}`}>
-                          {user.role}
-                        </Badge>
-                        <Badge className={`capitalize border-0 ${getStatusBadge(user.verificationStatus)}`}>
-                          {user.verificationStatus === "none" ? "Unverified" : user.verificationStatus.replace("_", " ")}
-                        </Badge>
-                      </div>
+                        {/* Badges */}
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge className={`capitalize border-0 ${getRoleBadge(user.role)}`}>
+                            {user.role}
+                          </Badge>
+                          <Badge className={`capitalize border-0 ${getStatusBadge(user.verificationStatus)}`}>
+                            {user.verificationStatus === "none" ? "Unverified" : user.verificationStatus.replace("_", " ")}
+                          </Badge>
+                        </div>
 
-                      {/* Footer */}
-                      <div className="pt-3 mt-auto border-t border-border/50 flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <CalendarIcon className="w-3.5 h-3.5 shrink-0" />
-                        Joined {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                      </div>
-                    </CardContent>
-                  </Card>
+                        {/* Footer */}
+                        <div className="pt-3 mt-auto border-t border-border/50 flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <CalendarIcon className="w-3.5 h-3.5 shrink-0" />
+                          Joined {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 ))
               )}
             </div>

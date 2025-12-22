@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterStep1Schema, type RegisterStep1Request } from "@/types/shared";
-import { z } from "zod";
 import { motion } from "@/lib/motion";
 
 interface RegisterStep1Props {
@@ -11,8 +11,13 @@ interface RegisterStep1Props {
 }
 
 export default function RegisterStep1({ onNext, initialData }: RegisterStep1Props) {
-    const [formData, setFormData] = useState<Partial<RegisterStep1Request>>(
-        initialData || {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<RegisterStep1Request>({
+        resolver: zodResolver(RegisterStep1Schema),
+        defaultValues: {
             firstName: "",
             middleName: "",
             lastName: "",
@@ -21,50 +26,17 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
             phone: "",
             address: "",
             dob: "",
-        }
-    );
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
+            ...initialData,
+        },
+    });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        // Clear error for this field
-        if (errors[name]) {
-            setErrors((prev) => {
-                const newErrors = { ...prev };
-                delete newErrors[name];
-                return newErrors;
-            });
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setErrors({});
-
-        try {
-            // Validate with Zod
-            const validData = RegisterStep1Schema.parse(formData);
-            await onNext(validData);
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                const fieldErrors: Record<string, string> = {};
-                error.errors.forEach((err) => {
-                    if (err.path[0]) {
-                        fieldErrors[err.path[0] as string] = err.message;
-                    }
-                });
-                setErrors(fieldErrors);
-            }
-        } finally {
-            setIsSubmitting(false);
-        }
+    const onSubmit = async (data: RegisterStep1Request) => {
+        await onNext(data);
     };
 
     const inputClasses = "mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
     const labelClasses = "block text-sm font-medium text-gray-700";
+    const errorClasses = "mt-1 text-sm text-red-600";
 
     return (
         <motion.div
@@ -79,7 +51,7 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Name Fields Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -89,13 +61,11 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
                         <input
                             type="text"
                             id="firstName"
-                            name="firstName"
-                            value={formData.firstName}
-                            onChange={handleChange}
+                            {...register("firstName")}
                             className={inputClasses}
                             placeholder="Juan"
                         />
-                        {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
+                        {errors.firstName && <p className={errorClasses}>{errors.firstName.message}</p>}
                     </div>
                     <div>
                         <label htmlFor="middleName" className={labelClasses}>
@@ -104,13 +74,11 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
                         <input
                             type="text"
                             id="middleName"
-                            name="middleName"
-                            value={formData.middleName || ""}
-                            onChange={handleChange}
+                            {...register("middleName")}
                             className={inputClasses}
                             placeholder="Santos"
                         />
-                        {errors.middleName && <p className="mt-1 text-sm text-red-600">{errors.middleName}</p>}
+                        {errors.middleName && <p className={errorClasses}>{errors.middleName.message}</p>}
                     </div>
                     <div>
                         <label htmlFor="lastName" className={labelClasses}>
@@ -119,13 +87,11 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
                         <input
                             type="text"
                             id="lastName"
-                            name="lastName"
-                            value={formData.lastName}
-                            onChange={handleChange}
+                            {...register("lastName")}
                             className={inputClasses}
                             placeholder="dela Cruz"
                         />
-                        {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
+                        {errors.lastName && <p className={errorClasses}>{errors.lastName.message}</p>}
                     </div>
                 </div>
 
@@ -138,13 +104,11 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
                         <input
                             type="email"
                             id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
+                            {...register("email")}
                             className={inputClasses}
                             placeholder="juan@example.com"
                         />
-                        {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                        {errors.email && <p className={errorClasses}>{errors.email.message}</p>}
                     </div>
                     <div>
                         <label htmlFor="password" className={labelClasses}>
@@ -153,13 +117,11 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
                         <input
                             type="password"
                             id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
+                            {...register("password")}
                             className={inputClasses}
                             placeholder="••••••••"
                         />
-                        {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+                        {errors.password && <p className={errorClasses}>{errors.password.message}</p>}
                         <p className="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
                     </div>
                 </div>
@@ -173,13 +135,11 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
                         <input
                             type="tel"
                             id="phone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
+                            {...register("phone")}
                             className={inputClasses}
                             placeholder="0912 345 6789"
                         />
-                        {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                        {errors.phone && <p className={errorClasses}>{errors.phone.message}</p>}
                     </div>
                     <div>
                         <label htmlFor="dob" className={labelClasses}>
@@ -188,12 +148,10 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
                         <input
                             type="date"
                             id="dob"
-                            name="dob"
-                            value={formData.dob}
-                            onChange={handleChange}
+                            {...register("dob")}
                             className={inputClasses}
                         />
-                        {errors.dob && <p className="mt-1 text-sm text-red-600">{errors.dob}</p>}
+                        {errors.dob && <p className={errorClasses}>{errors.dob.message}</p>}
                     </div>
                 </div>
 
@@ -204,14 +162,12 @@ export default function RegisterStep1({ onNext, initialData }: RegisterStep1Prop
                     </label>
                     <textarea
                         id="address"
-                        name="address"
                         rows={2}
-                        value={formData.address}
-                        onChange={handleChange}
+                        {...register("address")}
                         className={inputClasses}
                         placeholder="#123 Street Name, Brgy. Poblacion, Santa Maria, Bulacan"
                     />
-                    {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
+                    {errors.address && <p className={errorClasses}>{errors.address.message}</p>}
                 </div>
 
                 <button
