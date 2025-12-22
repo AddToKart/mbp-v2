@@ -22,6 +22,8 @@ const envSchema = z.object({
   DEFAULT_ADMIN_PASSWORD: z.string().min(8).default("ChangeMe123!"),
   COOKIE_DOMAIN: z.string().optional(),
   RATE_LIMIT_MAX: z.coerce.number().default(200),
+  // CORS origins - comma-separated list for production, defaults to localhost for dev
+  CORS_ORIGIN: z.string().optional(),
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
     .default("info"),

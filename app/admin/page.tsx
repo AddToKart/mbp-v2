@@ -71,20 +71,19 @@ interface DashboardData {
 }
 
 export default function AdminDashboard() {
-  const { token } = useAuth();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (authLoading) return;
+    if (!isAuthenticated) return;
 
     async function fetchDashboardData() {
       try {
         const response = await fetch(`${API_BASE_URL}/admin/analytics`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -101,7 +100,7 @@ export default function AdminDashboard() {
     }
 
     fetchDashboardData();
-  }, [token]);
+  }, [authLoading, isAuthenticated]);
 
   if (isLoading) {
     return (
@@ -178,8 +177,8 @@ export default function AdminDashboard() {
           description={
             data.schedule.nextScheduled
               ? `Next: ${new Date(
-                  data.schedule.nextScheduled
-                ).toLocaleDateString()}`
+                data.schedule.nextScheduled
+              ).toLocaleDateString()}`
               : "No upcoming posts"
           }
           trend="neutral"
@@ -290,9 +289,8 @@ export default function AdminDashboard() {
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{
-                        width: `${
-                          (cat.postCount / data.summary.totalPosts) * 100
-                        }%`,
+                        width: `${(cat.postCount / data.summary.totalPosts) * 100
+                          }%`,
                       }}
                       transition={{ duration: 0.8, delay: 0.2 + index * 0.1 }}
                       className="h-full rounded-full"
@@ -436,13 +434,12 @@ export default function AdminDashboard() {
                   data.recentActivity.map((item, i) => (
                     <div key={i} className="relative pl-6">
                       <div
-                        className={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-background ${
-                          item.status === "published"
+                        className={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-background ${item.status === "published"
                             ? "bg-emerald-500"
                             : item.status === "scheduled"
                               ? "bg-purple-500"
                               : "bg-blue-500"
-                        }`}
+                          }`}
                       />
                       <p className="text-sm font-medium text-foreground line-clamp-1">
                         {item.title}

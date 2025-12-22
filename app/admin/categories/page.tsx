@@ -39,7 +39,7 @@ interface Category {
 }
 
 export default function AdminCategoriesPage() {
-  const { token } = useAuth();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,15 +58,16 @@ export default function AdminCategoriesPage() {
     useValidation(categorySchema);
 
   useEffect(() => {
-    if (token) {
+    if (authLoading) return;
+    if (isAuthenticated) {
       fetchCategories();
     }
-  }, [token]);
+  }, [authLoading, isAuthenticated]);
 
   async function fetchCategories() {
     try {
       const response = await fetch(`${API_BASE_URL}/admin/categories`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       });
       if (!response.ok) throw new Error("Failed to fetch categories");
       const data = await response.json();
@@ -80,7 +81,7 @@ export default function AdminCategoriesPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!token) return;
+    if (!isAuthenticated) return;
 
     if (!validate(formData)) {
       return;
@@ -100,8 +101,8 @@ export default function AdminCategoriesPage() {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 
@@ -120,13 +121,13 @@ export default function AdminCategoriesPage() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this category?") || !token)
+    if (!confirm("Are you sure you want to delete this category?") || !isAuthenticated)
       return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -367,11 +368,10 @@ export default function AdminCategoriesPage() {
                   }
                 >
                   <TrashIcon
-                    className={`w-4 h-4 ${
-                      category.postCount > 0
+                    className={`w-4 h-4 ${category.postCount > 0
                         ? "text-muted-foreground"
                         : "text-destructive"
-                    }`}
+                      }`}
                   />
                 </Button>
               </CardFooter>

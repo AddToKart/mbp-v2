@@ -16,7 +16,7 @@ import { useToast } from "@/contexts/ToastContext";
 interface UsePostFormProps {
   mode: "create" | "edit";
   postId?: string;
-  token: string | null;
+  isAuthenticated: boolean;
   userName?: string;
   categories: CategoryOption[];
 }
@@ -59,7 +59,7 @@ const initialFormData: PostFormData = {
 export function usePostForm({
   mode,
   postId,
-  token,
+  isAuthenticated,
   userName,
   categories,
 }: UsePostFormProps): UsePostFormReturn {
@@ -95,7 +95,7 @@ export function usePostForm({
 
   // Load post for editing
   useEffect(() => {
-    if (mode !== "edit" || !postId || !token) {
+    if (mode !== "edit" || !postId || !isAuthenticated) {
       return;
     }
 
@@ -107,9 +107,7 @@ export function usePostForm({
 
       try {
         const response = await fetch(`${API_BASE_URL}/admin/posts/${postId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
           signal: controller.signal,
         });
 
@@ -169,7 +167,7 @@ export function usePostForm({
       isMounted = false;
       controller.abort();
     };
-  }, [mode, postId, token, showToast]);
+  }, [mode, postId, isAuthenticated, showToast]);
 
   const handleInputChange = (
     field: keyof PostFormData,

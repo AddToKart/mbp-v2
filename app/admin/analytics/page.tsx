@@ -113,7 +113,7 @@ function StatCard({
 }
 
 export default function AdminAnalyticsPage() {
-  const { token } = useAuth();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -142,7 +142,7 @@ export default function AdminAnalyticsPage() {
       try {
         setError(null);
         const res = await fetch(`${API_BASE_URL}/admin/posts`, {
-          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
           signal,
         });
         if (!res.ok) throw new Error("Failed to fetch posts");
@@ -158,16 +158,17 @@ export default function AdminAnalyticsPage() {
         setIsLoadingPosts(false);
       }
     },
-    [token]
+    []
   );
 
   useEffect(() => {
     const controller = new AbortController();
-    if (token) {
+    if (authLoading) return;
+    if (isAuthenticated) {
       fetchPostsWithAbort(controller.signal);
     }
     return () => controller.abort();
-  }, [token, fetchPostsWithAbort]);
+  }, [authLoading, isAuthenticated, fetchPostsWithAbort]);
 
   // Debounced search
   useEffect(() => {
@@ -190,7 +191,7 @@ export default function AdminAnalyticsPage() {
         const res = await fetch(
           `${API_BASE_URL}/admin/analytics/posts/${postId}`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            credentials: "include",
             signal,
           }
         );
@@ -206,7 +207,7 @@ export default function AdminAnalyticsPage() {
         setIsLoadingAnalytics(false);
       }
     },
-    [token]
+    []
   );
 
   const handleViewAnalytics = (postId: number) => {
@@ -373,13 +374,13 @@ export default function AdminAnalyticsPage() {
                         <TableCell className="py-4 text-sm text-muted-foreground">
                           {post.publishedAt
                             ? new Date(post.publishedAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                }
-                              )
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )
                             : "—"}
                         </TableCell>
                         <TableCell className="py-4 text-right pr-4">
@@ -546,18 +547,18 @@ export default function AdminAnalyticsPage() {
                           value={
                             analyticsData.publishedAt
                               ? new Date(
-                                  analyticsData.publishedAt
-                                ).toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                })
+                                analyticsData.publishedAt
+                              ).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })
                               : "N/A"
                           }
                           subtitle={
                             analyticsData.publishedAt
                               ? new Date(analyticsData.publishedAt)
-                                  .getFullYear()
-                                  .toString()
+                                .getFullYear()
+                                .toString()
                               : "Not published"
                           }
                           delay={0.1}

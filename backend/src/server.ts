@@ -49,10 +49,19 @@ async function buildServer() {
     parseOptions: {},
   });
 
+  // Parse CORS origins from environment or use defaults
+  const corsOrigins = env.CORS_ORIGIN
+    ? env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
+    : isProduction
+      ? [] // In production, CORS_ORIGIN should be explicitly set
+      : ["http://localhost:3000", "http://127.0.0.1:3000"];
+
+  if (isProduction && corsOrigins.length === 0) {
+    fastify.log.warn("CORS_ORIGIN not set in production - no origins allowed");
+  }
+
   await fastify.register(cors, {
-    origin: isProduction
-      ? ["https://yourdomain.com"] // Update with your production domain
-      : ["http://localhost:3000", "http://127.0.0.1:3000"],
+    origin: corsOrigins,
     credentials: true, // Required for cookies
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],

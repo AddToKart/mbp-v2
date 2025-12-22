@@ -14,7 +14,7 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 interface UsePostSaveProps {
   mode: "create" | "edit";
   postId?: string;
-  token: string | null;
+  isAuthenticated: boolean;
   formData: PostFormData;
   setFormData: React.Dispatch<React.SetStateAction<PostFormData>>;
   validate: (data: Record<string, unknown>) => boolean;
@@ -33,7 +33,7 @@ interface UsePostSaveReturn {
 export function usePostSave({
   mode,
   postId,
-  token,
+  isAuthenticated,
   formData,
   setFormData,
   validate,
@@ -49,8 +49,8 @@ export function usePostSave({
     console.log("handleSave called with statusOverride:", statusOverride);
     console.log("formData:", formData);
 
-    if (!token) {
-      console.log("No token found");
+    if (!isAuthenticated) {
+      console.log("Not authenticated");
       showToast("Your session has expired. Please sign in again.", {
         type: "error",
       });
@@ -182,8 +182,8 @@ export function usePostSave({
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
 
@@ -218,7 +218,7 @@ export function usePostSave({
   };
 
   const handleForcePublish = async () => {
-    if (!token) {
+    if (!isAuthenticated) {
       showToast("Your session has expired. Please sign in again.", {
         type: "error",
       });
@@ -272,8 +272,8 @@ export function usePostSave({
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
 

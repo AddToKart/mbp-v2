@@ -62,7 +62,7 @@ type PostStatusFilter = (typeof FILTERS)[number];
 
 export default function AdminPostsPage() {
   const router = useRouter();
-  const { token } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -75,7 +75,7 @@ export default function AdminPostsPage() {
 
   // Pull latest admin posts from Fastify backend using stored JWT token
   const fetchPosts = useCallback(async () => {
-    if (!token) {
+    if (!isAuthenticated) {
       return;
     }
 
@@ -84,9 +84,7 @@ export default function AdminPostsPage() {
 
     try {
       const response = await fetch(`${API_BASE_URL}/admin/posts`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
         cache: "no-store",
       });
 
@@ -117,11 +115,12 @@ export default function AdminPostsPage() {
     } finally {
       setIsFetching(false);
     }
-  }, [token]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
+    if (isLoading) return;
     fetchPosts();
-  }, [fetchPosts]);
+  }, [isLoading, fetchPosts]);
 
   const filteredPosts = useMemo(() => {
     const loweredQuery = searchQuery.trim().toLowerCase();
@@ -178,7 +177,7 @@ export default function AdminPostsPage() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!postToDelete || !token) return;
+    if (!postToDelete || !isAuthenticated) return;
 
     setIsDeleting(postToDelete);
     setError(null);
@@ -188,9 +187,7 @@ export default function AdminPostsPage() {
         `${API_BASE_URL}/admin/posts/${postToDelete}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         }
       );
 

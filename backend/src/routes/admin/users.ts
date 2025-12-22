@@ -6,12 +6,52 @@ import {
 import * as userService from "../../services/users.js";
 
 export async function adminUserRoutes(fastify: FastifyInstance) {
-  fastify.get(
+  // Get paginated users with filtering
+  fastify.get<{
+    Querystring: {
+      page?: string;
+      limit?: string;
+      role?: string;
+      status?: string;
+      search?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    };
+  }>(
     "/admin/users",
     { preHandler: [fastify.authenticate, fastify.requireAdmin] },
-    async function listUsers(_request: FastifyRequest, reply: FastifyReply) {
-      const rows = userService.getAllUsers();
-      return reply.send(rows);
+    async function listUsers(request, reply) {
+      const {
+        page = "1",
+        limit = "25",
+        role,
+        status,
+        search,
+        sortBy = "created_at",
+        sortOrder = "desc",
+      } = request.query;
+
+      const result = userService.getUsersWithPagination({
+        page: parseInt(page, 10) || 1,
+        limit: Math.min(parseInt(limit, 10) || 25, 100), // Cap at 100
+        role: role || undefined,
+        verificationStatus: status || undefined,
+        search: search || undefined,
+        sortBy,
+        sortOrder: sortOrder === "asc" ? "asc" : "desc",
+      });
+
+      return reply.send(result);
+    }
+  );
+
+  // Get user stats for dashboard
+  fastify.get(
+    "/admin/users/stats",
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    async function getUserStats(_request: FastifyRequest, reply: FastifyReply) {
+      const stats = userService.getUserStats();
+      return reply.send(stats);
     }
   );
 
@@ -49,6 +89,63 @@ export async function adminUserRoutes(fastify: FastifyInstance) {
       const created = userService.getUserById(Number(result.lastInsertRowid));
 
       return reply.code(201).send(created);
+    }
+  );
+
+  // Update user
+  fastify.put<{
+    Params: { id: string };
+    Body: {
+      name?: string;
+      email?: string;
+      password?: string;
+      role?: string;
+      verificationStatus?: string;
+    };
+  }>(
+    "/admin/users/:id",
+    { preHandler: [fastify.authenticate, fastify.requireAdmin] },
+    async function updateUser(request, reply) {
+      const id = Number.parseInt(request.params.id, 10);
+
+      if (Number.isNaN(id)) {
+        return reply.badRequest("Invalid user id");
+      }
+
+      const existing = userService.getUserById(id);
+      if (!existing) {
+        return reply.notFound("User not found");
+      }
+
+      const { name, email, password, role, verificationStatus } = request.body;
+
+      // Check email uniqueness if changing email
+      if (email && email !== existing.email) {
+        const emailExists = userService.getUserByEmail(email);
+        if (emailExists) {
+          return reply.status(409).send({ message: "Email already in use" });
+        }
+      }
+
+      // Build update data
+      const updateData: {
+        name?: string;
+        email?: string;
+        passwordHash?: string;
+        role?: string;
+        verificationStatus?: string;
+      } = {};
+
+      if (name) updateData.name = name;
+      if (email) updateData.email = email;
+      if (password) updateData.passwordHash = userService.hashPassword(password);
+      if (role) updateData.role = role;
+      if (verificationStatus) updateData.verificationStatus = verificationStatus;
+
+      userService.updateUser(id, updateData);
+      const updated = userService.getUserById(id);
+
+      return reply.send(updated);
     }
   );
 

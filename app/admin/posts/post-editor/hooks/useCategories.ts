@@ -10,13 +10,13 @@ interface UseCategoriesReturn {
   categoryError: string | null;
 }
 
-export function useCategories(token: string | null): UseCategoriesReturn {
+export function useCategories(isAuthenticated: boolean): UseCategoriesReturn {
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [categoryError, setCategoryError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) {
+    if (!isAuthenticated) {
       setCategories([]);
       setIsLoadingCategories(false);
       return;
@@ -31,9 +31,7 @@ export function useCategories(token: string | null): UseCategoriesReturn {
 
       try {
         const response = await fetch(`${API_BASE_URL}/admin/categories`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
           signal: controller.signal,
         });
 
@@ -79,7 +77,7 @@ export function useCategories(token: string | null): UseCategoriesReturn {
       isMounted = false;
       controller.abort();
     };
-  }, [token]);
+  }, [isAuthenticated]);
 
   return { categories, isLoadingCategories, categoryError };
 }

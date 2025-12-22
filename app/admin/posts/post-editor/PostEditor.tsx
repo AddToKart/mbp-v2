@@ -41,11 +41,11 @@ import {
 } from "./components";
 
 export default function PostEditor({ mode, postId }: PostEditorProps) {
-  const { token, user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   // Hooks
   const { categories, isLoadingCategories, categoryError } =
-    useCategories(token);
+    useCategories(isAuthenticated);
 
   const {
     formData,
@@ -61,7 +61,7 @@ export default function PostEditor({ mode, postId }: PostEditorProps) {
   } = usePostForm({
     mode,
     postId,
-    token,
+    isAuthenticated,
     userName: user?.name,
     categories,
   });
@@ -83,7 +83,7 @@ export default function PostEditor({ mode, postId }: PostEditorProps) {
   } = usePostSave({
     mode,
     postId,
-    token,
+    isAuthenticated,
     formData,
     setFormData,
     validate,
@@ -113,7 +113,7 @@ export default function PostEditor({ mode, postId }: PostEditorProps) {
   const [isZenMode, setIsZenMode] = useState(false);
 
   // Derived values
-  const isAuthenticated = useMemo(() => Boolean(token), [token]);
+  // Removed unused isAuthenticated memo - now using isAuthenticated from useAuth directly
 
   const selectedCategory = formData.category
     ? categories.find((cat) => cat.slug === formData.category)

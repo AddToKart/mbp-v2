@@ -58,7 +58,7 @@ interface AdminPostResponse {
 
 export default function TrashPage() {
   const router = useRouter();
-  const { token } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -71,7 +71,7 @@ export default function TrashPage() {
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
 
   const fetchDeletedPosts = useCallback(async () => {
-    if (!token) {
+    if (!isAuthenticated) {
       return;
     }
 
@@ -80,9 +80,7 @@ export default function TrashPage() {
 
     try {
       const response = await fetch(`${API_BASE_URL}/admin/posts/trash`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
         cache: "no-store",
       });
 
@@ -114,11 +112,12 @@ export default function TrashPage() {
     } finally {
       setIsFetching(false);
     }
-  }, [token]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
+    if (isLoading) return;
     fetchDeletedPosts();
-  }, [fetchDeletedPosts]);
+  }, [isLoading, fetchDeletedPosts]);
 
   const filteredPosts = useMemo(() => {
     const loweredQuery = searchQuery.trim().toLowerCase();
@@ -153,7 +152,7 @@ export default function TrashPage() {
   };
 
   const handleConfirmRestore = async () => {
-    if (!token || !selectedPost) return;
+    if (!isAuthenticated || !selectedPost) return;
 
     setIsProcessing(selectedPost);
     try {
@@ -161,7 +160,7 @@ export default function TrashPage() {
         `${API_BASE_URL}/admin/posts/${selectedPost}/restore`,
         {
           method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
         }
       );
 
@@ -186,7 +185,7 @@ export default function TrashPage() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!token || !selectedPost) return;
+    if (!isAuthenticated || !selectedPost) return;
 
     setIsProcessing(selectedPost);
     try {
@@ -194,7 +193,7 @@ export default function TrashPage() {
         `${API_BASE_URL}/admin/posts/${selectedPost}/permanent`,
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
         }
       );
 
