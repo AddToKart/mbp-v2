@@ -235,19 +235,29 @@ export async function authRoutes(fastify: FastifyInstance) {
 
   /**
    * GET /auth/me
-   * Returns current user info if authenticated
+   * Returns current user info if authenticated (always fetches fresh from DB)
    */
   fastify.get(
     "/auth/me",
     { preHandler: fastify.authenticate },
     async function meHandler(request: FastifyRequest, reply: FastifyReply) {
+      // Fetch fresh user data from database to ensure role/status is current
+      const user = userService.getUserById(request.user.id);
+
+      if (!user) {
+        // User was deleted or doesn't exist - clear cookies and return 401
+        reply.clearCookie("access_token", { path: "/" });
+        reply.clearCookie("refresh_token", { path: "/" });
+        return reply.unauthorized("User not found");
+      }
+
       return {
         user: {
-          id: request.user.id,
-          email: request.user.email,
-          name: request.user.name,
-          role: request.user.role,
-          verificationStatus: request.user.verificationStatus,
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          verificationStatus: user.verificationStatus,
         },
       };
     }
