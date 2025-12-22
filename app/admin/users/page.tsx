@@ -43,6 +43,8 @@ import {
   UserGroupIcon,
   ClockIcon,
   CalendarIcon,
+  ListBulletIcon,
+  Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConfirmModal } from "@/components/ui/confirm-modal";
@@ -116,6 +118,8 @@ const STATUS_FORM_OPTIONS = [
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
+type ViewMode = "list" | "card";
+
 export default function AdminUsersPage() {
   const { isLoading: authLoading, isAuthenticated } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
@@ -134,6 +138,7 @@ export default function AdminUsersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
 
   // Form State
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -436,6 +441,25 @@ export default function AdminUsersPage() {
                 />
               </div>
               <div className="flex gap-2">
+                {/* View Toggle */}
+                <div className="flex items-center bg-muted/50 rounded-md p-1">
+                  <Button
+                    variant={viewMode === "list" ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className="h-7 px-2"
+                  >
+                    <ListBulletIcon className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "card" ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("card")}
+                    className="h-7 px-2"
+                  >
+                    <Squares2X2Icon className="w-4 h-4" />
+                  </Button>
+                </div>
                 <select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
@@ -459,92 +483,162 @@ export default function AdminUsersPage() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/30 hover:bg-muted/30 border-0">
-                <TableHead className="w-[35%] font-semibold">User</TableHead>
-                <TableHead className="font-semibold">Role</TableHead>
-                <TableHead className="font-semibold">Status</TableHead>
-                <TableHead className="font-semibold">Joined</TableHead>
-                <TableHead className="text-right font-semibold">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                [...Array(5)].map((_, i) => (
-                  <TableRow key={i} className="border-0">
-                    <TableCell><div className="h-10 w-48 bg-muted/30 rounded animate-pulse" /></TableCell>
-                    <TableCell><div className="h-6 w-20 bg-muted/30 rounded animate-pulse" /></TableCell>
-                    <TableCell><div className="h-6 w-20 bg-muted/30 rounded animate-pulse" /></TableCell>
-                    <TableCell><div className="h-6 w-24 bg-muted/30 rounded animate-pulse" /></TableCell>
-                    <TableCell><div className="h-8 w-16 bg-muted/30 rounded animate-pulse ml-auto" /></TableCell>
+          {/* List View (Table) */}
+          {viewMode === "list" && (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30 hover:bg-muted/30 border-0">
+                  <TableHead className="w-[35%] font-semibold">User</TableHead>
+                  <TableHead className="font-semibold">Role</TableHead>
+                  <TableHead className="font-semibold">Status</TableHead>
+                  <TableHead className="font-semibold">Joined</TableHead>
+                  <TableHead className="text-right font-semibold">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  [...Array(5)].map((_, i) => (
+                    <TableRow key={i} className="border-0">
+                      <TableCell><div className="h-10 w-48 bg-muted/30 rounded animate-pulse" /></TableCell>
+                      <TableCell><div className="h-6 w-20 bg-muted/30 rounded animate-pulse" /></TableCell>
+                      <TableCell><div className="h-6 w-20 bg-muted/30 rounded animate-pulse" /></TableCell>
+                      <TableCell><div className="h-6 w-24 bg-muted/30 rounded animate-pulse" /></TableCell>
+                      <TableCell><div className="h-8 w-16 bg-muted/30 rounded animate-pulse ml-auto" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : users.length === 0 ? (
+                  <TableRow className="border-0">
+                    <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                      <UsersIcon className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                      <p>{debouncedSearch || roleFilter !== "all" || statusFilter !== "all"
+                        ? "No users match your filters"
+                        : "No users found"}</p>
+                    </TableCell>
                   </TableRow>
+                ) : (
+                  users.map((user) => (
+                    <TableRow key={user.id} className="hover:bg-muted/20 border-0">
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                            {user.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">{user.name}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={`capitalize border-0 ${getRoleBadge(user.role)}`}>
+                          {user.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={`capitalize border-0 ${getStatusBadge(user.verificationStatus)}`}>
+                          {user.verificationStatus === "none" ? "Unverified" : user.verificationStatus.replace("_", " ")}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(user.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(user)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <PencilSquareIcon className="w-4 h-4 text-primary" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(user)}
+                            className="h-8 w-8 p-0 hover:bg-destructive/10"
+                          >
+                            <TrashIcon className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
+
+          {/* Card View */}
+          {viewMode === "card" && (
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {isLoading ? (
+                [...Array(6)].map((_, i) => (
+                  <Card key={i} className="border-0 bg-muted/30">
+                    <CardContent className="p-4 space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-muted/50 animate-pulse" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 w-32 bg-muted/50 rounded animate-pulse" />
+                          <div className="h-3 w-40 bg-muted/50 rounded animate-pulse" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))
               ) : users.length === 0 ? (
-                <TableRow className="border-0">
-                  <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                    <UsersIcon className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                    <p>{debouncedSearch || roleFilter !== "all" || statusFilter !== "all"
-                      ? "No users match your filters"
-                      : "No users found"}</p>
-                  </TableCell>
-                </TableRow>
+                <div className="col-span-full py-12 text-center text-muted-foreground">
+                  <UsersIcon className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                  <p>No users found</p>
+                </div>
               ) : (
                 users.map((user) => (
-                  <TableRow key={user.id} className="hover:bg-muted/20 border-0">
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                  <Card key={user.id} className="border-0 bg-muted/30 hover:bg-muted/50 transition-colors group flex flex-col">
+                    <CardContent className="p-4 flex flex-col flex-1">
+                      {/* User Info */}
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg shrink-0">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground">{user.name}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-foreground truncate">{user.name}</h3>
+                          <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleEdit(user)}>
+                            <PencilSquareIcon className="w-3.5 h-3.5 text-primary" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:bg-destructive/10" onClick={() => handleDelete(user)}>
+                            <TrashIcon className="w-3.5 h-3.5 text-destructive" />
+                          </Button>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={`capitalize border-0 ${getRoleBadge(user.role)}`}>
-                        {user.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={`capitalize border-0 ${getStatusBadge(user.verificationStatus)}`}>
-                        {user.verificationStatus === "none" ? "Unverified" : user.verificationStatus.replace("_", " ")}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(user.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(user)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <PencilSquareIcon className="w-4 h-4 text-primary" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(user)}
-                          className="h-8 w-8 p-0 hover:bg-destructive/10"
-                        >
-                          <TrashIcon className="w-4 h-4 text-destructive" />
-                        </Button>
+
+                      {/* Badges */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge className={`capitalize border-0 ${getRoleBadge(user.role)}`}>
+                          {user.role}
+                        </Badge>
+                        <Badge className={`capitalize border-0 ${getStatusBadge(user.verificationStatus)}`}>
+                          {user.verificationStatus === "none" ? "Unverified" : user.verificationStatus.replace("_", " ")}
+                        </Badge>
                       </div>
-                    </TableCell>
-                  </TableRow>
+
+                      {/* Footer */}
+                      <div className="pt-3 mt-auto border-t border-border/50 flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <CalendarIcon className="w-3.5 h-3.5 shrink-0" />
+                        Joined {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </div>
+          )}
 
           {/* Pagination */}
           {total > 0 && (

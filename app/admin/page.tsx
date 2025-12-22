@@ -202,7 +202,7 @@ export default function AdminDashboard() {
           transition={{ duration: 0.4 }}
           className="lg:col-span-2"
         >
-          <Card className="h-full shadow-md">
+          <Card className="h-full shadow-sm border-0">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ArrowTrendingUpIcon className="w-5 h-5 text-primary" />
@@ -237,7 +237,7 @@ export default function AdminDashboard() {
                             }}
                             className="w-full bg-primary/80 group-hover:bg-primary transition-colors relative min-h-[4px]"
                           >
-                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-sm border border-border">
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-sm">
                               {month.views.toLocaleString()} views
                             </div>
                           </motion.div>
@@ -262,7 +262,7 @@ export default function AdminDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
-          <Card className="h-full shadow-md">
+          <Card className="h-full shadow-sm border-0">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TagIcon className="w-5 h-5 text-primary" />
@@ -306,7 +306,7 @@ export default function AdminDashboard() {
               )}
               <div className="pt-2">
                 <Link href="/admin/categories">
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button variant="secondary" size="sm" className="w-full">
                     Manage Categories
                   </Button>
                 </Link>
@@ -324,7 +324,7 @@ export default function AdminDashboard() {
           transition={{ duration: 0.4, delay: 0.2 }}
           className="lg:col-span-2"
         >
-          <Card className="shadow-md h-full">
+          <Card className="shadow-sm border-0 h-full">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
@@ -353,7 +353,7 @@ export default function AdminDashboard() {
                       <th className="px-4 py-3 rounded-r-lg">Date</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
+                  <tbody>
                     {data.recentPosts.map((post) => (
                       <tr
                         key={post.id}
@@ -368,7 +368,7 @@ export default function AdminDashboard() {
                           </Link>
                         </td>
                         <td className="px-4 py-3">
-                          <Badge variant="outline" className="font-normal">
+                          <Badge variant="secondary" className="font-normal border-0">
                             {post.categoryName}
                           </Badge>
                         </td>
@@ -381,7 +381,7 @@ export default function AdminDashboard() {
                                   ? "secondary"
                                   : "outline"
                             }
-                            className="capitalize"
+                            className="capitalize border-0"
                           >
                             {post.status}
                           </Badge>
@@ -420,7 +420,7 @@ export default function AdminDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
         >
-          <Card className="h-full shadow-md">
+          <Card className="h-full shadow-sm border-0">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ClockIcon className="w-5 h-5 text-primary" />
@@ -435,10 +435,10 @@ export default function AdminDashboard() {
                     <div key={i} className="relative pl-6">
                       <div
                         className={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-2 border-background ${item.status === "published"
-                            ? "bg-emerald-500"
-                            : item.status === "scheduled"
-                              ? "bg-purple-500"
-                              : "bg-blue-500"
+                          ? "bg-emerald-500"
+                          : item.status === "scheduled"
+                            ? "bg-purple-500"
+                            : "bg-blue-500"
                           }`}
                       />
                       <p className="text-sm font-medium text-foreground line-clamp-1">
@@ -453,8 +453,8 @@ export default function AdminDashboard() {
                         </span>
                       </div>
                       <Badge
-                        variant="outline"
-                        className="mt-1 text-[10px] h-5 px-1.5"
+                        variant="secondary"
+                        className="mt-1 text-[10px] h-5 px-1.5 border-0"
                       >
                         {item.status}
                       </Badge>
@@ -469,8 +469,8 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
 
@@ -497,7 +497,7 @@ function StatCard({
   };
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow">
+    <Card className="shadow-sm hover:shadow-md transition-shadow border-0">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
