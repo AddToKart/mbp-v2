@@ -309,4 +309,6 @@ export function clearPublicPostsCache() {
   publicPostSlugCache.clear();
 }
 
-export { slugify };
+export { slugify }
+
+const export slugify
